@@ -37,26 +37,42 @@ app = Dash(__name__)
 
 SLIDER_STEPS = np.arange(0, 5000, 200)
 
+
+def create_slider(id):
+
+    return html.Div(
+        [
+            html.Label(id, htmlFor=id),
+            dcc.Slider(
+                SLIDER_STEPS.min(),
+                SLIDER_STEPS.max(),
+                step=None,
+                value=SLIDER_STEPS.min(),
+                marks={str(val): str(val) for val in SLIDER_STEPS},
+                id=id,
+            ),
+        ]
+    )
+
+
+sliders = [create_slider(isin) for isin in isin_df["ISIN"].values]
+
 app.layout = html.Div(
     [
         dcc.Graph(id="graph-with-slider"),
-        dcc.Slider(
-            SLIDER_STEPS.min(),
-            SLIDER_STEPS.max(),
-            step=None,
-            value=SLIDER_STEPS.min(),
-            marks={str(val): str(val) for val in SLIDER_STEPS},
-            id="bond-quant-slider",
-        ),
+        *sliders,
     ]
 )
 
 
-@callback(Output("graph-with-slider", "figure"), Input("bond-quant-slider", "value"))
-def update_figure(amount):
+sliders_input = [Input(isin, "value") for isin in isin_df["ISIN"].values]
+
+
+@callback(Output("graph-with-slider", "figure"), *sliders_input)
+def update_figure(*amounts):
 
     potential_payments = calc_potential_payments(
-        trading_bonds.loc[trading_bonds.ISIN == "UA4000227656"], amount, monthly_bag
+        trading_bonds, amounts, monthly_bag, isin_df
     )
 
     fig = plot_potential_payments(base_fig, potential_payments)
