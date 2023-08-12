@@ -4,11 +4,12 @@ from xml.etree.cElementTree import XML, Element
 
 import pandas as pd
 import requests
-from bs4 import BeautifulSoup
 from bondstool.data.bag import ISIN_PREFIX
+from bs4 import BeautifulSoup
 
-AUC_DOMAIN = 'https://mof.gov.ua'
-AUC_URL = AUC_DOMAIN + '/uk/ogoloshennja-ta-rezultati-aukcioniv'
+AUC_DOMAIN = "https://mof.gov.ua"
+AUC_URL = AUC_DOMAIN + "/uk/ogoloshennja-ta-rezultati-aukcioniv"
+
 
 def get_doc_url():
 
@@ -16,7 +17,7 @@ def get_doc_url():
 
     soup = BeautifulSoup(resp.text)
 
-    doc_path = soup.table.select('a[href*=".docx"]')[0]['href']
+    doc_path = soup.table.select('a[href*=".docx"]')[0]["href"]
 
     doc_url = AUC_DOMAIN + doc_path
 
