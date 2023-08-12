@@ -31,9 +31,7 @@ def calc_potential_payments(
 
     potential_payments = payments_by_month(trading_bonds, pay_col="total_pay_val")
 
-    df = pd.concat(
-        (bag_payments, potential_payments)
-    )
+    df = pd.concat((bag_payments, potential_payments))
     df = payments_by_month(df)
     # TODO: omit if filling is not needed
     df = fill_missing_months(df)
