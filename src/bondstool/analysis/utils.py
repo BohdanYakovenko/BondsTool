@@ -8,8 +8,9 @@ def payments_by_month(df: pd.DataFrame, pay_col="total_pay_val"):
 
 
 def fill_missing_months(df: pd.DataFrame):
-
-    period_index = pd.period_range(df.index.min(), df.index.max(), freq="M")
+    period_index = pd.period_range(
+        df.index.min(), df.index.max() + pd.DateOffset(months=1), freq="M"
+    )
     period_index = round_to_month_end(period_index.to_timestamp())
 
     filled_df = pd.DataFrame(index=pd.Index(period_index, name=df.index.name)).join(df)

@@ -19,9 +19,11 @@ def get_doc_url():
 
     doc_path = soup.table.select('a[href*=".docx"]')[0]["href"]
 
+    auc_date = soup.table.select("td")[0].contents[0]
+
     doc_url = AUC_DOMAIN + doc_path
 
-    return doc_url
+    return doc_url, auc_date
 
 
 def get_auction_xml(url):
