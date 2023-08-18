@@ -15,7 +15,7 @@ def get_doc_url():
 
     resp = requests.get(AUC_URL)
 
-    soup = BeautifulSoup(resp.text)
+    soup = BeautifulSoup(resp.text, features="html.parser")
 
     doc_path = soup.table.select('a[href*=".docx"]')[0]["href"]
 
