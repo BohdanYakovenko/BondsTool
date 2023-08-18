@@ -11,6 +11,7 @@ from bondstool.analysis.utils import (
 from bondstool.data.auction import (
     filter_trading_bonds,
     get_auction_xml,
+    get_doc_url,
     parse_xml_isins,
 )
 from bondstool.data.bag import merge_bonds_info, read_bag_info
@@ -23,7 +24,7 @@ bonds = normalize_payments(bonds)
 bag = read_bag_info()
 bag = merge_bonds_info(bag, bonds)
 
-isin_df = parse_xml_isins(get_auction_xml())
+isin_df = parse_xml_isins(get_auction_xml(get_doc_url()))
 
 trading_bonds = filter_trading_bonds(isin_df, bonds)
 

@@ -5,11 +5,26 @@ from xml.etree.cElementTree import XML, Element
 import pandas as pd
 import requests
 from bondstool.data.bag import ISIN_PREFIX
+from bs4 import BeautifulSoup
 
-DOC_URL = "https://mof.gov.ua/storage/files/121-123%20%D0%BE%D0%B3%D0%BE%D0%BB%D0%BE%D1%88%D0%B5%D0%BD%D0%BD%D1%8F.docx"
+AUC_DOMAIN = "https://mof.gov.ua"
+AUC_URL = AUC_DOMAIN + "/uk/ogoloshennja-ta-rezultati-aukcioniv"
 
 
-def get_auction_xml(url=DOC_URL):
+def get_doc_url():
+
+    resp = requests.get(AUC_URL)
+
+    soup = BeautifulSoup(resp.text)
+
+    doc_path = soup.table.select('a[href*=".docx"]')[0]["href"]
+
+    doc_url = AUC_DOMAIN + doc_path
+
+    return doc_url
+
+
+def get_auction_xml(url):
 
     resp = requests.get(url)
 
