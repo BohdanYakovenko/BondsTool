@@ -70,6 +70,8 @@ app.layout = html.Div(
         ),
         dcc.Graph(id="graph-with-slider"),
         *sliders,
+        dcc.Input(id="search-input", type="text", placeholder="Enter ISIN"),
+        html.Div(id="search-output"),
     ]
 )
 
@@ -89,6 +91,24 @@ def update_figure(*amounts):
     fig.update_layout(transition_duration=500)
 
     return fig
+
+
+@callback(Output("search-output", "children"), Input("search-input", "value"))
+def update_search_output(input_value):
+    if not input_value:
+        return "Enter ISIN to search."
+
+    result = bonds[bonds["ISIN"].str.contains(input_value, case=False)]
+
+    if result.empty:
+        return f"No matching records for '{input_value}'."
+
+    result_table = html.Table(
+        [html.Tr([html.Th(col) for col in result.columns])]
+        + [html.Tr([html.Td(str(val)) for val in row]) for row in result.values]
+    )
+
+    return result_table
 
 
 if __name__ == "__main__":
