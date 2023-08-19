@@ -24,9 +24,9 @@ bonds = normalize_payments(bonds)
 bag = read_bag_info()
 bag = merge_bonds_info(bag, bonds)
 
-doc_url = get_doc_url()
+doc_url, auc_date = get_doc_url()
 
-isin_df = parse_xml_isins(get_auction_xml(doc_url[0]))
+isin_df = parse_xml_isins(get_auction_xml(doc_url))
 
 trading_bonds = filter_trading_bonds(isin_df, bonds)
 
@@ -64,7 +64,7 @@ app.layout = html.Div(
     [
         html.Div(
             [
-                html.H1(doc_url[1], style={"text-align": "center", "margin": "1px 0"}),
+                html.H1(auc_date, style={"text-align": "center", "margin": "1px 0"}),
             ],
             style={"display": "flex", "justify-content": "center"},
         ),
