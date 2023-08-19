@@ -11,6 +11,8 @@ dependencies = [
     "pandas",
     "plotly",
     "dash",
+    "openpyxl",
+    "beautifulsoup4"
 ]
 
 [project.optional-dependencies]
