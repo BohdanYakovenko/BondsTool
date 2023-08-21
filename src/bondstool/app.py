@@ -77,6 +77,13 @@ app.layout = html.Div(
         dcc.Graph(id="graph-with-slider"),
         *sliders,
         dcc.Input(id="search-input", type="text", placeholder="Enter ISIN"),
+        html.Button("▼", id="dropdown-button"),
+        dcc.Dropdown(
+            id="dropdown",
+            options=[{"label": isin, "value": isin} for isin in bonds["ISIN"]],
+            placeholder="Select an ISIN",
+            style={"display": "none"},
+        ),
         html.Div(id="search-output"),
     ]
 )
@@ -99,15 +106,22 @@ def update_figure(*amounts):
     return fig
 
 
-@callback(Output("search-output", "children"), Input("search-input", "value"))
-def update_search_output(input_value):
-    if not input_value:
-        return "Enter ISIN to search."
+@callback(
+    Output("search-output", "children"),
+    [Input("search-input", "value"), Input("dropdown", "value")],
+)
+def update_search_output(input_value, selected_isin):
+    if input_value:
+        search_value = input_value
+    elif selected_isin:
+        search_value = selected_isin
+    else:
+        return None
 
-    bond = raw_bonds[raw_bonds["ISIN"].str.contains(input_value, case=False)]
+    bond = raw_bonds[raw_bonds["ISIN"].str.contains(search_value, case=False)]
 
     if bond.empty:
-        return f"No matching records for '{input_value}'."
+        return f"No matching records for '{search_value}'."
 
     payment_dfs = bond.apply(create_payments_table, axis=1)
 
@@ -128,6 +142,13 @@ def update_search_output(input_value):
     )
 
     return table
+
+
+@callback(Output("dropdown", "style"), [Input("dropdown-button", "n_clicks")])
+def toggle_dropdown(n_clicks):
+    if n_clicks and n_clicks % 2 != 0:
+        return {"display": "block"}
+    return {"display": "none"}
 
 
 if __name__ == "__main__":
