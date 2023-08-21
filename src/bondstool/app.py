@@ -127,22 +127,13 @@ def update_search_output(input_value, selected_isin):
     else:
         return None
 
-    bond = raw_bonds[raw_bonds["ISIN"].str.contains(search_value, case=False)]
 
-    if bond.empty:
-        return f"No matching records for '{search_value}'."
+    df = bonds.loc[bonds['ISIN'] == search_value]
+    df = df.drop(columns=['pay_date', 'pay_val', 'month_end'])
+    df = df.drop_duplicates()
 
-    payment_dfs = bond.apply(create_payments_table, axis=1)
-
-    df = pd.concat(payment_dfs.tolist(), ignore_index=True)
-    df = df.drop("ISIN", axis=1)
-
-    combined_df = pd.concat([bond, df], axis=1)
-
-    combined_df = combined_df.drop("payments", axis=1)
-
-    table_data = combined_df.to_dict("records")
-    table_columns = [{"name": col, "id": col} for col in combined_df.columns]
+    table_data = df.to_dict("records")
+    table_columns = [{"name": col, "id": col} for col in df.columns]
 
     table = dash_table.DataTable(
         id="combined-table",
