@@ -1,4 +1,7 @@
 import numpy as np
+import pandas as pd
+import json
+
 from bondstool.analysis.plot import (
     make_base_monthly_payments_fig,
     plot_potential_payments,
@@ -15,11 +18,15 @@ from bondstool.data.auction import (
     parse_xml_isins,
 )
 from bondstool.data.bag import merge_bonds_info, read_bag_info
-from bondstool.data.bonds import get_bonds_info, normalize_payments
-from dash import Dash, Input, Output, callback, dcc, html
+from bondstool.data.bonds import (
+    get_bonds_info,
+    normalize_payments,
+    create_payments_table,
+)
+from dash import Dash, Input, Output, callback, dcc, html, dash_table
 
-bonds = get_bonds_info()
-bonds = normalize_payments(bonds)
+raw_bonds = get_bonds_info()
+bonds = normalize_payments(raw_bonds)
 
 bag = read_bag_info()
 bag = merge_bonds_info(bag, bonds)
@@ -98,17 +105,30 @@ def update_search_output(input_value):
     if not input_value:
         return "Enter ISIN to search."
 
-    result = bonds[bonds["ISIN"].str.contains(input_value, case=False)]
+    bond = raw_bonds[raw_bonds["ISIN"].str.contains(input_value, case=False)]
 
-    if result.empty:
+    if bond.empty:
         return f"No matching records for '{input_value}'."
 
-    result_table = html.Table(
-        [html.Tr([html.Th(col) for col in result.columns])]
-        + [html.Tr([html.Td(str(val)) for val in row]) for row in result.values]
+    payment_dfs = bond.apply(create_payments_table, axis=1)
+
+    df = pd.concat(payment_dfs.tolist(), ignore_index=True)
+    df = df.drop("ISIN", axis=1)
+
+    combined_df = pd.concat([bond, df], axis=1)
+
+    combined_df = combined_df.drop("payments", axis=1)
+
+    table_data = combined_df.to_dict("records")
+    table_columns = [{"name": col, "id": col} for col in combined_df.columns]
+
+    table = dash_table.DataTable(
+        id="combined-table",
+        columns=table_columns,
+        data=table_data,
     )
 
-    return result_table
+    return table
 
 
 if __name__ == "__main__":
