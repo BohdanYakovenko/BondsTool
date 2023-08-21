@@ -11,7 +11,7 @@ AUC_DOMAIN = "https://mof.gov.ua"
 AUC_URL = AUC_DOMAIN + "/uk/ogoloshennja-ta-rezultati-aukcioniv"
 
 
-def get_doc_url():
+def get_doc_url_date():
 
     resp = requests.get(AUC_URL)
 
