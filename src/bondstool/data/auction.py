@@ -17,9 +17,9 @@ def get_doc_url():
 
     soup = BeautifulSoup(resp.text, features="html.parser")
 
-    doc_path = soup.table.select('a[href*=".docx"]')[0]["href"]
-
     auc_date = soup.table.select("td")[0].contents[0]
+
+    doc_path = soup.table.select('a[href*=".docx"]')[0]["href"]
 
     doc_url = AUC_DOMAIN + doc_path
 
@@ -45,8 +45,8 @@ def parse_xml_isins(tree: Element):
     TEXT = WORD_NAMESPACE + "t"
 
     isins = []
-    for paragraph in tree.getiterator(PARA):
-        texts = [node.text for node in paragraph.getiterator(TEXT) if node.text]
+    for paragraph in tree.iter(PARA):
+        texts = [node.text for node in paragraph.iter(TEXT) if node.text]
         if texts:
             texts = "".join(texts)
 
