@@ -80,11 +80,20 @@ app.layout = html.Div(
         html.Button("▼", id="dropdown-button"),
         dcc.Dropdown(
             id="dropdown",
-            options=[{"label": isin, "value": isin} for isin in bonds["ISIN"]],
+            options=[{"label": isin, "value": isin} for isin in raw_bonds["ISIN"]],
             placeholder="Select an ISIN",
             style={"display": "none"},
         ),
         html.Div(id="search-output"),
+        html.H2("Bag Data", style={"text-align": "center", "margin-top": "20px"}),
+        html.Div(
+            dash_table.DataTable(
+                id="bag-table",
+                columns=[{"name": col, "id": col} for col in bag.columns],
+                data=bag.to_dict("records"),
+            ),
+            style={"margin-top": "10px"},
+        ),
     ]
 )
 
