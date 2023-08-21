@@ -11,7 +11,7 @@ AUC_DOMAIN = "https://mof.gov.ua"
 AUC_URL = AUC_DOMAIN + "/uk/ogoloshennja-ta-rezultati-aukcioniv"
 
 
-def get_doc_url():
+def get_doc_url_date():
 
     resp = requests.get(AUC_URL)
 
@@ -45,8 +45,8 @@ def parse_xml_isins(tree: Element):
     TEXT = WORD_NAMESPACE + "t"
 
     isins = []
-    for paragraph in tree.getiterator(PARA):
-        texts = [node.text for node in paragraph.getiterator(TEXT) if node.text]
+    for paragraph in tree.iter(PARA):
+        texts = [node.text for node in paragraph.iter(TEXT) if node.text]
         if texts:
             texts = "".join(texts)
 
