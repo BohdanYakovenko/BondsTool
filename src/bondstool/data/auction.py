@@ -11,17 +11,19 @@ AUC_DOMAIN = "https://mof.gov.ua"
 AUC_URL = AUC_DOMAIN + "/uk/ogoloshennja-ta-rezultati-aukcioniv"
 
 
-def get_doc_url():
+def get_doc_url_date():
 
     resp = requests.get(AUC_URL)
 
-    soup = BeautifulSoup(resp.text)
+    soup = BeautifulSoup(resp.text, features="html.parser")
 
     doc_path = soup.table.select('a[href*=".docx"]')[0]["href"]
 
+    auc_date = soup.table.select("td")[0].contents[0]
+
     doc_url = AUC_DOMAIN + doc_path
 
-    return doc_url
+    return doc_url, auc_date
 
 
 def get_auction_xml(url):
