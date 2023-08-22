@@ -47,10 +47,3 @@ def normalize_payments(df: pd.DataFrame):
     df["pay_date"] = pd.to_datetime(df["pay_date"])
     df["month_end"] = round_to_month_end(df["pay_date"])
     return truncate_past_dates(df)
-
-
-def create_payments_table(row):
-    normalized_data = row["payments"]
-    payment_df = pd.DataFrame(normalized_data)
-    payment_df["ISIN"] = row["ISIN"]
-    return payment_df

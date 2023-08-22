@@ -20,7 +20,6 @@ from bondstool.data.bag import merge_bonds_info, read_bag_info
 from bondstool.data.bonds import (
     get_bonds_info,
     normalize_payments,
-    create_payments_table,
 )
 from dash import Dash, Input, Output, callback, dcc, html, dash_table
 
@@ -127,9 +126,8 @@ def update_search_output(input_value, selected_isin):
     else:
         return None
 
-
-    df = bonds.loc[bonds['ISIN'] == search_value]
-    df = df.drop(columns=['pay_date', 'pay_val', 'month_end'])
+    df = bonds.loc[bonds["ISIN"] == search_value]
+    df = df.drop(columns=["pay_date", "pay_val", "month_end"])
     df = df.drop_duplicates()
 
     table_data = df.to_dict("records")
