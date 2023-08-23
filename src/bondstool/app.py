@@ -17,6 +17,7 @@ from bondstool.data.auction import (
 from bondstool.data.bag import merge_bonds_info, read_bag_info
 from bondstool.data.bonds import (
     get_bonds_info,
+    get_recommended_bonds,
     normalize_payments,
 )
 from dash import Dash, Input, Output, callback, dash_table, dcc, html
@@ -36,6 +37,8 @@ trading_bonds = filter_trading_bonds(isin_df, bonds)
 monthly_bag = payments_by_month(bag)
 monthly_bag = fill_missing_months(monthly_bag)
 
+recommended_bonds = get_recommended_bonds(bonds, monthly_bag)
+
 base_fig = make_base_monthly_payments_fig(monthly_bag)
 
 
@@ -45,10 +48,14 @@ SLIDER_STEPS = np.arange(0, 5000, 200)
 
 
 def create_slider(id):
+    if id in recommended_bonds["ISIN"].values:
+        label_style = {"color": "red"}
+    else:
+        label_style = {}
 
     return html.Div(
         [
-            html.Label(id, htmlFor=id),
+            html.Label(id, htmlFor=id, style=label_style),
             dcc.Slider(
                 SLIDER_STEPS.min(),
                 SLIDER_STEPS.max(),
@@ -67,22 +74,58 @@ app.layout = html.Div(
     [
         html.Div(
             [
-                html.H1(auc_date, style={"text-align": "center", "margin": "1px 0"}),
+                html.H1(
+                    "Аналітика облігацій",
+                    style={
+                        "text-align": "center",
+                        "margin-bottom": "0.5px",
+                        "font-size": "30px",
+                    },
+                ),
             ],
             style={"display": "flex", "justify-content": "center"},
         ),
         dcc.Graph(id="graph-with-slider"),
+        html.Div(
+            [
+                html.H2(
+                    f"Облігації доступні на аукціоні: {auc_date}",
+                    style={
+                        "text-align": "center",
+                        "margin": "1px 0",
+                        "font-size": "25px",
+                    },
+                ),
+            ],
+            style={"display": "flex", "justify-content": "center"},
+        ),
+        html.Div(
+            [
+                html.P(
+                    "*Облігації червоним кольором рекомендовані",
+                    style={
+                        "text-align": "right",
+                        "margin-top": "0.5px",
+                        "color": "red",
+                    },
+                ),
+            ],
+            style={"display": "flex", "justify-content": "flex-end"},
+        ),
         *sliders,
         dcc.Input(id="search-input", type="text", placeholder="Enter ISIN"),
         html.Button("▼", id="dropdown-button"),
         dcc.Dropdown(
             id="dropdown",
-            options=[{"label": isin, "value": isin} for isin in raw_bonds["ISIN"]],
+            options=[
+                {"label": "Рекомендовані облігації", "value": "Рекомендовані облігації"}
+            ]
+            + [{"label": isin, "value": isin} for isin in raw_bonds["ISIN"]],
             placeholder="Select an ISIN",
             style={"display": "none"},
         ),
         html.Div(id="search-output"),
-        html.H2("Bag Data", style={"text-align": "center", "margin-top": "20px"}),
+        html.H3("Bag Data", style={"text-align": "center", "margin-top": "20px"}),
         html.Div(
             dash_table.DataTable(
                 id="bag-table",
@@ -116,15 +159,18 @@ def update_figure(*amounts):
     Output("search-output", "children"),
     [Input("search-input", "value"), Input("dropdown", "value")],
 )
-def update_search_output(input_value, selected_isin):
-    if input_value:
+def update_search_output(input_value, selected_option):
+    if selected_option == "Рекомендовані облігації":
+        df = recommended_bonds
+    elif input_value:
         search_value = input_value
-    elif selected_isin:
-        search_value = selected_isin
+        df = bonds.loc[bonds["ISIN"] == search_value]
+    elif selected_option:
+        search_value = selected_option
+        df = bonds.loc[bonds["ISIN"] == search_value]
     else:
         return None
 
-    df = bonds.loc[bonds["ISIN"] == search_value]
     df = df.drop(columns=["pay_date", "pay_val", "month_end"])
     df = df.drop_duplicates()
 
