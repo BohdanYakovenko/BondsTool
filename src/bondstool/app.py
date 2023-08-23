@@ -1,5 +1,4 @@
 import numpy as np
-
 from bondstool.analysis.plot import (
     make_base_monthly_payments_fig,
     plot_potential_payments,
@@ -20,7 +19,7 @@ from bondstool.data.bonds import (
     get_bonds_info,
     normalize_payments,
 )
-from dash import Dash, Input, Output, callback, dcc, html, dash_table
+from dash import Dash, Input, Output, callback, dash_table, dcc, html
 
 raw_bonds = get_bonds_info()
 bonds = normalize_payments(raw_bonds)
@@ -106,7 +105,7 @@ def update_figure(*amounts):
         trading_bonds, amounts, monthly_bag, isin_df
     )
 
-    fig = plot_potential_payments(base_fig, potential_payments)
+    fig = plot_potential_payments(base_fig, potential_payments, monthly_bag)
 
     fig.update_layout(transition_duration=500)
 
