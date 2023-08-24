@@ -59,13 +59,16 @@ def get_recommended_bonds(bonds: pd.DataFrame, monthly_bag: pd.DataFrame):
     ] + pd.offsets.MonthEnd(0)
 
     merged_df = bonds_last_payment.merge(monthly_bag, on="month_end")
-    filtered_df = merged_df[merged_df["total_pay_val"] <= monthly_bag.mean().values[0]]
+    filtered_df = merged_df.loc[
+        merged_df["total_pay_val"] <= monthly_bag.mean().values[0]
+    ]
 
     monthly_bag = monthly_bag.reset_index()
     last_month_end = monthly_bag["month_end"].max()
-    extra_bonds = bonds_last_payment[
+
+    extra_bonds = bonds_last_payment.loc[
         bonds_last_payment["month_end"] > last_month_end
-    ].copy()
+    ]
     extra_bonds["total_pay_val"] = 0
 
     final_df = pd.concat([filtered_df, extra_bonds], ignore_index=True)

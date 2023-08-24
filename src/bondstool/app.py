@@ -162,11 +162,8 @@ def update_figure(*amounts):
 def update_search_output(input_value, selected_option):
     if selected_option == "Рекомендовані облігації":
         df = recommended_bonds
-    elif input_value:
-        search_value = input_value
-        df = bonds.loc[bonds["ISIN"] == search_value]
-    elif selected_option:
-        search_value = selected_option
+    elif input_value or selected_option:
+        search_value = input_value or selected_option
         df = bonds.loc[bonds["ISIN"] == search_value]
     else:
         return None
