@@ -16,6 +16,7 @@ from bondstool.data.auction import (
 )
 from bondstool.data.bag import merge_bonds_info, read_bag_info
 from bondstool.data.bonds import (
+    calculate_profitability,
     get_bonds_info,
     get_recommended_bonds,
     normalize_payments,
@@ -24,6 +25,7 @@ from dash import Dash, Input, Output, callback, dash_table, dcc, html
 
 raw_bonds = get_bonds_info()
 bonds = normalize_payments(raw_bonds)
+bonds = calculate_profitability(bonds)
 
 bag = read_bag_info()
 bag = merge_bonds_info(bag, bonds)
