@@ -1,4 +1,5 @@
 import numpy as np
+import pandas as pd
 from bondstool.analysis.plot import (
     make_base_monthly_payments_fig,
     plot_potential_payments,
@@ -116,7 +117,7 @@ app.layout = html.Div(
             style={"display": "flex", "justify-content": "flex-end"},
         ),
         *sliders,
-        dcc.Input(id="search-input", type="text", placeholder="Enter ISIN"),
+        dcc.Input(id="search-input", type="text", placeholder="Введіть ISIN"),
         html.Button("▼", id="dropdown-button"),
         dcc.Dropdown(
             id="dropdown",
@@ -124,11 +125,13 @@ app.layout = html.Div(
                 {"label": "Рекомендовані облігації", "value": "Рекомендовані облігації"}
             ]
             + [{"label": isin, "value": isin} for isin in raw_bonds["ISIN"]],
-            placeholder="Select an ISIN",
+            placeholder="Виберіть ISIN",
             style={"display": "none"},
         ),
         html.Div(id="search-output"),
-        html.H3("Bag Data", style={"text-align": "center", "margin-top": "20px"}),
+        html.H3(
+            "Портфель облігацій", style={"text-align": "center", "margin-top": "20px"}
+        ),
         html.Div(
             dash_table.DataTable(
                 id="bag-table",
@@ -179,9 +182,14 @@ def update_search_output(input_value, selected_option):
             "emit_okpo",
             "cpcode_cfi",
             "sum_pay_val",
+            "cptype",
         ]
     )
     df = df.drop_duplicates()
+    df["maturity_date"] = df["maturity_date"].apply(
+        lambda x: pd.to_datetime(x).strftime("%Y-%m-%d")
+    )
+    df["profitability"] = df["profitability"].round(2)
     df = df.rename(columns=MAP_HEADINGS)
 
     table_data = df.to_dict("records")

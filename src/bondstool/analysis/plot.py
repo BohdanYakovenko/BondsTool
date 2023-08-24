@@ -7,7 +7,7 @@ def make_base_monthly_payments_fig(monthly_bag: pd.DataFrame):
 
     fig = px.line(monthly_bag)
 
-    fig.data[0]["name"] = "Bag payment"
+    fig.data[0]["name"] = "Виплати за портфелем"
 
     return fig
 
@@ -19,7 +19,7 @@ def plot_potential_payments(
 
     trace = px.line(potential_payments).data[0]
     trace["line"]["color"] = "rgb(34, 130, 47)"
-    trace["name"] = "Forecast"
+    trace["name"] = "Спрогнозовані виплати"
 
     fig.add_trace(trace)
 
@@ -44,12 +44,12 @@ def plot_potential_payments(
         y=[avg_bag] * len(trace["x"]),
         mode="lines",
         line=dict(color="gray", dash="dash"),
-        name="Month avg payment",
+        name="Середня щомісячна виплата",
     )
     fig.add_trace(avg_bag_trace)
 
-    fig.update_layout(legend_title_text="Bonds", title_font=dict(size=25))
-    fig.update_xaxes(title_text="Date", title_font=dict(size=25))
-    fig.update_yaxes(title_text="Amount", title_font=dict(size=25))
+    fig.update_layout(legend_title_text="Облігації", title_font=dict(size=25))
+    fig.update_xaxes(title_text="Дата", title_font=dict(size=25))
+    fig.update_yaxes(title_text="Сума", title_font=dict(size=25))
 
     return fig

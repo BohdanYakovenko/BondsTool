@@ -7,10 +7,9 @@ BONDS_URL = "https://bank.gov.ua/depo_securities?json"
 MAP_HEADINGS = {
     "nominal": "Номінал",
     "auk_proc": "Процентна ставка",
-    "maturity_date": "Термін погашення",
-    "issue_date": "Дата розміщення",
-    "cptype": "Вид",
-    "type": "Тип",
+    "maturity_date": "Дата погашення",
+    "issue_date": "Дата випуску",
+    "type": "Вид",
     "pay_period": "Купонний період",
     "currency": "Валюта",
     "emit_name": "Назва емітента",
