@@ -68,8 +68,8 @@ def get_recommended_bonds(bonds: pd.DataFrame, monthly_bag: pd.DataFrame):
 
     extra_bonds = bonds_last_payment.loc[
         bonds_last_payment["month_end"] > last_month_end
-    ]
-    extra_bonds["total_pay_val"] = 0
+    ].copy()  # Use .copy() to avoid the SettingWithCopyWarning
+    extra_bonds.loc[:, "total_pay_val"] = 0
 
     final_df = pd.concat([filtered_df, extra_bonds], ignore_index=True)
     final_df.drop(["total_pay_val", "cpcode_cfi", "emit_okpo"], axis=1, inplace=True)
