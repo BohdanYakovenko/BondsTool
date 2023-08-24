@@ -90,16 +90,3 @@ def get_recommended_bonds(bonds: pd.DataFrame, monthly_bag: pd.DataFrame):
     final_df.drop(["total_pay_val"], axis=1, inplace=True)
 
     return final_df
-
-
-def calculate_profitability(bonds: pd.DataFrame):
-
-    sums = bonds.groupby("ISIN")["pay_val"].sum().reset_index()
-    sums.rename(columns={"pay_val": "sum_pay_val"}, inplace=True)
-
-    bonds = bonds.merge(sums, on="ISIN")
-    bonds["profitability"] = (
-        (bonds["sum_pay_val"] - bonds["nominal"]) / bonds["nominal"] * 100
-    )
-
-    return bonds

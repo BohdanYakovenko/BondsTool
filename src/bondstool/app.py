@@ -5,6 +5,7 @@ from bondstool.analysis.plot import (
 )
 from bondstool.analysis.utils import (
     calc_potential_payments,
+    calculate_profitability,
     fill_missing_months,
     payments_by_month,
 )
@@ -17,7 +18,6 @@ from bondstool.data.auction import (
 from bondstool.data.bag import merge_bonds_info, read_bag_info
 from bondstool.data.bonds import (
     MAP_HEADINGS,
-    calculate_profitability,
     get_bonds_info,
     get_recommended_bonds,
     normalize_payments,
