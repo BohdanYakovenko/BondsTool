@@ -17,9 +17,9 @@ def get_doc_url_date():
 
     soup = BeautifulSoup(resp.text, features="html.parser")
 
-    doc_path = soup.table.select('a[href*=".docx"]')[0]["href"]
-
     auc_date = soup.table.select("td")[0].contents[0]
+
+    doc_path = soup.table.select('a[href*=".docx"]')[0]["href"]
 
     doc_url = AUC_DOMAIN + doc_path
 
