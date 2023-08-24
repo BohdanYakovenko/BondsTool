@@ -16,6 +16,7 @@ from bondstool.data.auction import (
 )
 from bondstool.data.bag import merge_bonds_info, read_bag_info
 from bondstool.data.bonds import (
+    MAP_HEADINGS,
     calculate_profitability,
     get_bonds_info,
     get_recommended_bonds,
@@ -170,8 +171,18 @@ def update_search_output(input_value, selected_option):
     else:
         return None
 
-    df = df.drop(columns=["pay_date", "pay_val", "month_end"])
+    df = df.drop(
+        columns=[
+            "pay_date",
+            "pay_val",
+            "month_end",
+            "emit_okpo",
+            "cpcode_cfi",
+            "sum_pay_val",
+        ]
+    )
     df = df.drop_duplicates()
+    df = df.rename(columns=MAP_HEADINGS)
 
     table_data = df.to_dict("records")
     table_columns = [{"name": col, "id": col} for col in df.columns]

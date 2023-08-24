@@ -4,6 +4,21 @@ from bondstool.utils import round_to_month_end, truncate_past_dates
 
 BONDS_URL = "https://bank.gov.ua/depo_securities?json"
 
+MAP_HEADINGS = {
+    "nominal": "Номінал",
+    "auk_proc": "Процентна ставка",
+    "maturity_date": "Термін погашення",
+    "issue_date": "Дата розміщення",
+    "cptype": "Вид",
+    "type": "Тип",
+    "pay_period": "Купонний період",
+    "currency": "Валюта",
+    "emit_name": "Назва емітента",
+    "cptype_nkcpfr": "Вид НКЦПФР",
+    "total_bonds": "Кількість облігацій",
+    "profitability": "Прибутковість, %",
+}
+
 
 def get_bonds_info():
 
@@ -72,7 +87,7 @@ def get_recommended_bonds(bonds: pd.DataFrame, monthly_bag: pd.DataFrame):
     extra_bonds.loc[:, "total_pay_val"] = 0
 
     final_df = pd.concat([filtered_df, extra_bonds], ignore_index=True)
-    final_df.drop(["total_pay_val", "cpcode_cfi", "emit_okpo"], axis=1, inplace=True)
+    final_df.drop(["total_pay_val"], axis=1, inplace=True)
 
     return final_df
 
@@ -86,5 +101,5 @@ def calculate_profitability(bonds: pd.DataFrame):
     bonds["profitability"] = (
         (bonds["sum_pay_val"] - bonds["nominal"]) / bonds["nominal"] * 100
     )
-    
+
     return bonds
