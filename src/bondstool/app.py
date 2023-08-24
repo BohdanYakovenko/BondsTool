@@ -1,6 +1,5 @@
 import numpy as np
 import pandas as pd
-
 from bondstool.analysis.plot import (
     make_base_monthly_payments_fig,
     plot_potential_payments,
