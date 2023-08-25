@@ -186,9 +186,8 @@ def update_search_output(input_value, selected_option):
         ]
     )
     df = df.drop_duplicates()
-    df["maturity_date"] = df["maturity_date"].apply(
-        lambda x: pd.to_datetime(x).strftime("%Y-%m-%d")
-    )
+    df["issue_date"] = pd.to_datetime(df["issue_date"]).dt.strftime("%d-%m-%Y")
+    df["maturity_date"] = df["maturity_date"].dt.strftime("%d-%m-%Y")
     df["profitability"] = df["profitability"].round(2)
     df = df.rename(columns=MAP_HEADINGS)
 
