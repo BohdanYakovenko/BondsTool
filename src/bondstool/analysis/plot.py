@@ -7,25 +7,19 @@ def make_base_monthly_payments_fig(monthly_bag: pd.DataFrame):
 
     fig = px.line(monthly_bag)
 
-    fig.data[0]["name"] = "Bag payment"
-
-    fig.add_hline(
-        y=monthly_bag.mean().values[0],
-        line_width=2,
-        line_dash="dot",
-        annotation_text="month avg payment",
-        annotation_position="bottom right",
-    )
+    fig.data[0]["name"] = "Виплати за портфелем"
 
     return fig
 
 
-def plot_potential_payments(base_fig: go.Figure, potential_payments: pd.DataFrame):
+def plot_potential_payments(
+    base_fig: go.Figure, potential_payments: pd.DataFrame, monthly_bag: pd.DataFrame
+):
     fig = go.Figure()
 
     trace = px.line(potential_payments).data[0]
     trace["line"]["color"] = "rgb(34, 130, 47)"
-    trace["name"] = "Forecast"
+    trace["name"] = "Спрогнозовані виплати"
 
     fig.add_trace(trace)
 
@@ -44,8 +38,18 @@ def plot_potential_payments(base_fig: go.Figure, potential_payments: pd.DataFram
     )
     fig.add_trace(area_trace)
 
-    fig.update_layout(legend_title_text="Bonds", title_font=dict(size=25))
-    fig.update_xaxes(title_text="Date", title_font=dict(size=25))
-    fig.update_yaxes(title_text="Amount", title_font=dict(size=25))
+    avg_bag = monthly_bag.mean().values[0]
+    avg_bag_trace = go.Scatter(
+        x=trace["x"],
+        y=[avg_bag] * len(trace["x"]),
+        mode="lines",
+        line=dict(color="gray", dash="dash"),
+        name="Середня щомісячна виплата",
+    )
+    fig.add_trace(avg_bag_trace)
+
+    fig.update_layout(legend_title_text="Облігації", title_font=dict(size=25))
+    fig.update_xaxes(title_text="Дата", title_font=dict(size=25))
+    fig.update_yaxes(title_text="Сума", title_font=dict(size=25))
 
     return fig

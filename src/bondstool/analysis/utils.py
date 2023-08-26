@@ -37,3 +37,16 @@ def calc_potential_payments(
     # TODO: omit if filling is not needed
     df = fill_missing_months(df)
     return df
+
+
+def calculate_profitability(bonds: pd.DataFrame):
+
+    sums = bonds.groupby("ISIN")["pay_val"].sum().reset_index()
+    sums.rename(columns={"pay_val": "sum_pay_val"}, inplace=True)
+
+    bonds = bonds.merge(sums, on="ISIN")
+    bonds["profitability"] = (
+        (bonds["sum_pay_val"] - bonds["nominal"]) / bonds["nominal"] * 100
+    )
+
+    return bonds
