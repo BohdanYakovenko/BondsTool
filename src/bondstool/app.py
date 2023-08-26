@@ -23,7 +23,7 @@ from bondstool.data.bonds import (
     get_recommended_bonds,
     normalize_payments,
 )
-from bondstool.utils import get_styleby_condition
+from bondstool.utils import get_style_by_condition
 from dash import Dash, Input, Output, callback, dash_table, dcc, html
 
 raw_bonds = get_bonds_info()
@@ -140,7 +140,7 @@ app.layout = html.Div(
                 id="bag-table",
                 columns=[{"name": col, "id": col} for col in formatted_bag.columns],
                 data=formatted_bag.to_dict("records"),
-                style_data_conditional=get_styleby_condition(formatted_bag),
+                style_data_conditional=get_style_by_condition(formatted_bag),
             ),
             style={"margin-top": "10px"},
         ),

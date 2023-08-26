@@ -28,11 +28,14 @@ def split_dataframe(df: pd.DataFrame, column="pay_date"):
     return df_not_satisfying, df_satisfying
 
 
-def get_styleby_condition(df: pd.DataFrame, column="type", condition=None):
+def get_style_by_condition(df: pd.DataFrame, column="pay_date"):
     style_conditional = []
-    for i, row in enumerate(df):
-        if row[column] is condition:
+    for index, row in df.iterrows():
+        if pd.isna(row[column]):
             style_conditional.append(
-                {"if": {"row_index": i}, "backgroundColor": "rgb(237, 237, 237)"}
+                {
+                    "if": {"row_index": index},
+                    "backgroundColor": "rgb(237, 237, 237)",
+                }
             )
     return style_conditional
