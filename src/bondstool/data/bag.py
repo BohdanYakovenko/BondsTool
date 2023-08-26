@@ -1,5 +1,5 @@
 import pandas as pd
-from bondstool.utils import split_dataframe
+from bondstool.utils import MAP_HEADINGS, split_dataframe
 
 OVDP_BAG_PATH = "data/ovdp_bag_31.05.23.xlsx"
 ISIN_PREFIX = "UA4000"
@@ -55,6 +55,24 @@ def analyse_bag(bag: pd.DataFrame):
     return bag
 
 
+def get_sums_row(bag: pd.DataFrame):
+
+    assigned_columns = [
+        "quantity",
+        "expenditure",
+        "expected return",
+        "profit before tax",
+        "profit after tax",
+    ]
+
+    column_sums = bag[assigned_columns].sum()
+
+    sum_row = pd.DataFrame([column_sums], columns=assigned_columns)
+    sum_row.at[0, "ISIN"] = "Разом"
+
+    return sum_row
+
+
 def format_bag(bag: pd.DataFrame):
 
     bag["expected return"] = bag.groupby("ISIN")["total_pay_val"].transform("sum")
@@ -73,7 +91,15 @@ def format_bag(bag: pd.DataFrame):
 
     actual = analyse_bag(actual)
 
-    actual["pay_date"] = pd.to_datetime(actual["pay_date"]).dt.strftime("%d-%m-%Y")
+    sum_row = get_sums_row(actual)
+
+    actual.loc[actual.shape[0]] = None
+    combined_actual = pd.concat([actual, sum_row], ignore_index=True)
+    combined_actual.loc[combined_actual.shape[0]] = None
+
+    combined_actual["pay_date"] = pd.to_datetime(
+        combined_actual["pay_date"]
+    ).dt.strftime("%d-%m-%Y")
 
     columns_to_round = [
         "expenditure",
@@ -84,8 +110,21 @@ def format_bag(bag: pd.DataFrame):
         "profitability",
     ]
 
-    actual.loc[:, columns_to_round] = actual[columns_to_round].round(2)
+    combined_actual.loc[:, columns_to_round] = combined_actual[columns_to_round].round(
+        2
+    )
 
-    combined_bag = pd.concat([actual, historic], ignore_index=True, sort=False)
+    historic_copy = historic.copy()
+
+    historic_copy.loc[:, ["pay_date", "tax", "expected return"]] = [
+        "Погашена",
+        None,
+        None,
+    ]
+
+    combined_bag = pd.concat(
+        [combined_actual, historic_copy], ignore_index=True, sort=False
+    )
+    combined_bag = combined_bag.rename(columns=MAP_HEADINGS)
 
     return combined_bag

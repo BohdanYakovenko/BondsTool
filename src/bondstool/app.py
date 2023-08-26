@@ -18,12 +18,11 @@ from bondstool.data.auction import (
 )
 from bondstool.data.bag import format_bag, merge_bonds_info, read_bag_info
 from bondstool.data.bonds import (
-    MAP_HEADINGS,
     get_bonds_info,
     get_recommended_bonds,
     normalize_payments,
 )
-from bondstool.utils import get_style_by_condition
+from bondstool.utils import MAP_HEADINGS, get_style_by_condition
 from dash import Dash, Input, Output, callback, dash_table, dcc, html
 
 raw_bonds = get_bonds_info()
