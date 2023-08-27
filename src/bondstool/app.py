@@ -16,13 +16,13 @@ from bondstool.data.auction import (
     get_doc_url_date,
     parse_xml_isins,
 )
-from bondstool.data.bag import merge_bonds_info, read_bag_info
+from bondstool.data.bag import format_bag, merge_bonds_info, read_bag_info
 from bondstool.data.bonds import (
-    MAP_HEADINGS,
     get_bonds_info,
     get_recommended_bonds,
     normalize_payments,
 )
+from bondstool.utils import MAP_HEADINGS, get_style_by_condition
 from dash import Dash, Input, Output, callback, dash_table, dcc, html
 
 raw_bonds = get_bonds_info()
@@ -37,6 +37,8 @@ doc_url, auc_date = get_doc_url_date()
 isin_df = parse_xml_isins(get_auction_xml(doc_url))
 
 trading_bonds = filter_trading_bonds(isin_df, bonds)
+
+formatted_bag = format_bag(bag)
 
 monthly_bag = payments_by_month(bag)
 monthly_bag = fill_missing_months(monthly_bag)
@@ -135,8 +137,9 @@ app.layout = html.Div(
         html.Div(
             dash_table.DataTable(
                 id="bag-table",
-                columns=[{"name": col, "id": col} for col in bag.columns],
-                data=bag.to_dict("records"),
+                columns=[{"name": col, "id": col} for col in formatted_bag.columns],
+                data=formatted_bag.to_dict("records"),
+                style_data_conditional=get_style_by_condition(formatted_bag),
             ),
             style={"margin-top": "10px"},
         ),
