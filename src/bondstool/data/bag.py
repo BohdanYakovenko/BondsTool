@@ -35,7 +35,16 @@ def read_bag_info():
 def merge_bonds_info(bag: pd.DataFrame, bonds: pd.DataFrame):
 
     bag = bag.merge(
-        bonds[["ISIN", "pay_date", "pay_val", "month_end", "type"]],
+        bonds[
+            [
+                "ISIN",
+                "pay_date",
+                "pay_val",
+                "month_end",
+                "type",
+                "currency",
+            ]
+        ],
         how="left",
         on="ISIN",
     )
@@ -46,6 +55,8 @@ def merge_bonds_info(bag: pd.DataFrame, bonds: pd.DataFrame):
 
 def analyse_bag(bag: pd.DataFrame):
     bag = bag.copy()
+
+    bag["expected return"] = bag["expected return"] * bag["exchange_rate"]
 
     bag["profit before tax"] = bag["expected return"] - bag["expenditure"]
     bag["profit after tax"] = bag["profit before tax"] * (1 - bag["tax"])

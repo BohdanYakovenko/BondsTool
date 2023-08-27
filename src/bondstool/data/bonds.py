@@ -3,20 +3,7 @@ import requests
 from bondstool.utils import round_to_month_end, truncate_past_dates
 
 BONDS_URL = "https://bank.gov.ua/depo_securities?json"
-
-MAP_HEADINGS = {
-    "nominal": "Номінал",
-    "auk_proc": "Процентна ставка",
-    "maturity_date": "Дата погашення",
-    "issue_date": "Дата випуску",
-    "type": "Вид",
-    "pay_period": "Купонний період",
-    "currency": "Валюта",
-    "emit_name": "Назва емітента",
-    "cptype_nkcpfr": "Вид НКЦПФР",
-    "total_bonds": "Кількість облігацій",
-    "profitability": "Прибутковість, %",
-}
+CURRENCY_URL = "https://bank.gov.ua/NBUStatService/v1/statdirectory/exchange?json"
 
 
 def get_bonds_info():
@@ -35,6 +22,33 @@ def get_bonds_info():
 
     bonds = bonds.rename(columns=map_headings)
     bonds["maturity_date"] = pd.to_datetime(bonds["maturity_date"])
+
+    return bonds
+
+
+def get_exchange_rates():
+
+    json = requests.get(url=CURRENCY_URL).text
+    currencies = pd.read_json(json)
+
+    usd_and_eur = currencies[currencies["r030"].isin([840, 978])]
+
+    uah = {"rate": 1, "cc": "UAH"}
+
+    uah_df = pd.DataFrame([uah])
+
+    exchange_rates = pd.concat([usd_and_eur, uah_df], ignore_index=True)
+
+    return exchange_rates
+
+
+def add_exchange_rates(bonds: pd.DataFrame, exchange_rates: pd.DataFrame):
+
+    merged_df = pd.merge(
+        bonds, exchange_rates, left_on="currency", right_on="cc", how="left"
+    )
+
+    bonds["exchange_rate"] = merged_df["rate"]
 
     return bonds
 

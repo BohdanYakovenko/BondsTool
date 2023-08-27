@@ -18,19 +18,26 @@ from bondstool.data.auction import (
 )
 from bondstool.data.bag import format_bag, merge_bonds_info, read_bag_info
 from bondstool.data.bonds import (
+    add_exchange_rates,
     get_bonds_info,
+    get_exchange_rates,
     get_recommended_bonds,
     normalize_payments,
 )
 from bondstool.utils import MAP_HEADINGS, get_style_by_condition
 from dash import Dash, Input, Output, callback, dash_table, dcc, html
 
+exchange_rates = get_exchange_rates()
+
 raw_bonds = get_bonds_info()
+raw_bonds = add_exchange_rates(raw_bonds, exchange_rates)
+
 bonds = normalize_payments(raw_bonds)
 bonds = calculate_profitability(bonds)
 
 bag = read_bag_info()
 bag = merge_bonds_info(bag, bonds)
+bag = add_exchange_rates(bag, exchange_rates)
 
 doc_url, auc_date = get_doc_url_date()
 
@@ -186,6 +193,7 @@ def update_search_output(input_value, selected_option):
             "cpcode_cfi",
             "sum_pay_val",
             "cptype",
+            "exchange_rate",
         ]
     )
     df = df.drop_duplicates()

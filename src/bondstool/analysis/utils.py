@@ -27,7 +27,9 @@ def calc_potential_payments(
     for isin, amount in zip(isin_df["ISIN"].values, amounts):
         mask = trading_bonds["ISIN"] == isin
         trading_bonds.loc[mask, "total_pay_val"] = (
-            trading_bonds.loc[mask, "pay_val"] * amount
+            trading_bonds.loc[mask, "pay_val"]
+            * amount
+            * trading_bonds.loc[mask, "exchange_rate"]
         )
 
     potential_payments = payments_by_month(trading_bonds, pay_col="total_pay_val")
