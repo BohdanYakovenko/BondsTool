@@ -53,6 +53,40 @@ def merge_bonds_info(bag: pd.DataFrame, bonds: pd.DataFrame):
     return bag
 
 
+def get_payment_schedule(bag: pd.DataFrame):
+
+    bag = bag.sort_values(by="pay_date", ascending=True)
+
+    bag["total_pay_val"] = bag["total_pay_val"] * bag["exchange_rate"]
+
+    bag = bag.drop(
+        columns=[
+            "quantity",
+            "expenditure",
+            "tax",
+            "pay_val",
+            "month_end",
+            "exchange_rate",
+        ]
+    )
+
+    bag["pay_date"] = pd.to_datetime(bag["pay_date"]).dt.strftime("%d-%m-%Y")
+    bag["total_pay_val"] = bag["total_pay_val"].round(2)
+
+    actual, historic = split_dataframe(bag)
+
+    map_headings = {
+        "type": "Вид",
+        "currency": "Валюта",
+        "pay_date": "Дата",
+        "total_pay_val": "Сума, UAH",
+    }
+
+    actual = actual.rename(columns=map_headings)
+
+    return actual
+
+
 def analyse_bag(bag: pd.DataFrame):
     bag = bag.copy()
 

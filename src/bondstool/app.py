@@ -16,7 +16,12 @@ from bondstool.data.auction import (
     get_doc_url_date,
     parse_xml_isins,
 )
-from bondstool.data.bag import format_bag, merge_bonds_info, read_bag_info
+from bondstool.data.bag import (
+    format_bag,
+    get_payment_schedule,
+    merge_bonds_info,
+    read_bag_info,
+)
 from bondstool.data.bonds import (
     add_exchange_rates,
     get_bonds_info,
@@ -45,6 +50,7 @@ isin_df = parse_xml_isins(get_auction_xml(doc_url))
 
 trading_bonds = filter_trading_bonds(isin_df, bonds)
 
+payment_schedule = get_payment_schedule(bag)
 formatted_bag = format_bag(bag)
 
 monthly_bag = payments_by_month(bag)
@@ -147,6 +153,17 @@ app.layout = html.Div(
                 columns=[{"name": col, "id": col} for col in formatted_bag.columns],
                 data=formatted_bag.to_dict("records"),
                 style_data_conditional=get_style_by_condition(formatted_bag),
+            ),
+            style={"margin-top": "10px"},
+        ),
+        html.H4(
+            "Графік платежів", style={"text-align": "center", "margin-top": "20px"}
+        ),
+        html.Div(
+            dash_table.DataTable(
+                id="payment-schedule",
+                columns=[{"name": col, "id": col} for col in payment_schedule.columns],
+                data=payment_schedule.to_dict("records"),
             ),
             style={"margin-top": "10px"},
         ),
