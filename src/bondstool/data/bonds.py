@@ -44,11 +44,12 @@ def get_exchange_rates():
 
 def add_exchange_rates(bonds: pd.DataFrame, exchange_rates: pd.DataFrame):
 
-    merged_df = pd.merge(
-        bonds, exchange_rates, left_on="currency", right_on="cc", how="left"
+    bonds = bonds.merge(
+        exchange_rates[["cc", "rate"]], left_on="currency", right_on="cc", how="left"
     )
+    bonds.rename(columns={"rate": "exchange_rate"}, inplace=True)
 
-    bonds["exchange_rate"] = merged_df["rate"]
+    bonds.drop(columns=["cc"], inplace=True)
 
     return bonds
 
@@ -96,10 +97,11 @@ def get_recommended_bonds(bonds: pd.DataFrame, monthly_bag: pd.DataFrame):
 
     extra_bonds = bonds_last_payment.loc[
         bonds_last_payment["month_end"] > last_month_end
-    ].copy()  # Use .copy() to avoid the SettingWithCopyWarning
+    ].copy()
     extra_bonds.loc[:, "total_pay_val"] = 0
 
     final_df = pd.concat([filtered_df, extra_bonds], ignore_index=True)
     final_df.drop(["total_pay_val"], axis=1, inplace=True)
+    final_df = final_df.sort_values(by="pay_date", ascending=True)
 
     return final_df

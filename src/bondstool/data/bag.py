@@ -43,12 +43,13 @@ def merge_bonds_info(bag: pd.DataFrame, bonds: pd.DataFrame):
                 "month_end",
                 "type",
                 "currency",
+                "exchange_rate",
             ]
         ],
         how="left",
         on="ISIN",
     )
-    bag["total_pay_val"] = bag["pay_val"] * bag["quantity"]
+    bag["total_pay_val"] = bag["pay_val"] * bag["quantity"] * bag["exchange_rate"]
 
     return bag
 
@@ -90,8 +91,6 @@ def get_payment_schedule(bag: pd.DataFrame):
 def analyse_bag(bag: pd.DataFrame):
     bag = bag.copy()
 
-    bag["expected return"] = bag["expected return"] * bag["exchange_rate"]
-
     bag["profit before tax"] = bag["expected return"] - bag["expenditure"]
     bag["profit after tax"] = bag["profit before tax"] * (1 - bag["tax"])
     bag["profit per bond"] = bag["profit after tax"] / bag["quantity"]
@@ -114,6 +113,9 @@ def get_sums_row(bag: pd.DataFrame):
 
     sum_row = pd.DataFrame([column_sums], columns=assigned_columns)
     sum_row.at[0, "ISIN"] = "Разом"
+    sum_row.at[0, "profitability"] = (
+        sum_row.at[0, "profit after tax"] / sum_row.at[0, "expenditure"] * 100
+    )
 
     return sum_row
 

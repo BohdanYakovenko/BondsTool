@@ -42,7 +42,6 @@ bonds = calculate_profitability(bonds)
 
 bag = read_bag_info()
 bag = merge_bonds_info(bag, bonds)
-bag = add_exchange_rates(bag, exchange_rates)
 
 doc_url, auc_date = get_doc_url_date()
 
