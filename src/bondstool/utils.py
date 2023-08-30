@@ -18,10 +18,11 @@ MAP_HEADINGS = {
     "expenditure": "Загальна сума придбання",
     "tax": "Податок (ПнПр)",
     "pay_date": "Дата погашеня",
-    "expected return": "Сума погашення",
+    "expected return": "Сума погашення, UAH",
     "profit before tax": "Прибуток без податку",
     "profit after tax": "Прибуток після податку",
     "profit per bond": "Прибуток на облігацію",
+    "exchange_rate": "Курс валют",
 }
 
 

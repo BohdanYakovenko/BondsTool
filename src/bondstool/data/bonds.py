@@ -3,20 +3,7 @@ import requests
 from bondstool.utils import round_to_month_end, truncate_past_dates
 
 BONDS_URL = "https://bank.gov.ua/depo_securities?json"
-
-MAP_HEADINGS = {
-    "nominal": "Номінал",
-    "auk_proc": "Процентна ставка",
-    "maturity_date": "Дата погашення",
-    "issue_date": "Дата випуску",
-    "type": "Вид",
-    "pay_period": "Купонний період",
-    "currency": "Валюта",
-    "emit_name": "Назва емітента",
-    "cptype_nkcpfr": "Вид НКЦПФР",
-    "total_bonds": "Кількість облігацій",
-    "profitability": "Прибутковість, %",
-}
+CURRENCY_URL = "https://bank.gov.ua/NBUStatService/v1/statdirectory/exchange?json"
 
 
 def get_bonds_info():
@@ -35,6 +22,34 @@ def get_bonds_info():
 
     bonds = bonds.rename(columns=map_headings)
     bonds["maturity_date"] = pd.to_datetime(bonds["maturity_date"])
+
+    return bonds
+
+
+def get_exchange_rates():
+
+    json = requests.get(url=CURRENCY_URL).text
+    currencies = pd.read_json(json)
+
+    usd_and_eur = currencies[currencies["r030"].isin([840, 978])]
+
+    uah = {"rate": 1, "cc": "UAH"}
+
+    uah_df = pd.DataFrame([uah])
+
+    exchange_rates = pd.concat([usd_and_eur, uah_df], ignore_index=True)
+
+    return exchange_rates
+
+
+def add_exchange_rates(bonds: pd.DataFrame, exchange_rates: pd.DataFrame):
+
+    bonds = bonds.merge(
+        exchange_rates[["cc", "rate"]], left_on="currency", right_on="cc", how="left"
+    )
+    bonds.rename(columns={"rate": "exchange_rate"}, inplace=True)
+
+    bonds.drop(columns=["cc"], inplace=True)
 
     return bonds
 
@@ -82,10 +97,11 @@ def get_recommended_bonds(bonds: pd.DataFrame, monthly_bag: pd.DataFrame):
 
     extra_bonds = bonds_last_payment.loc[
         bonds_last_payment["month_end"] > last_month_end
-    ].copy()  # Use .copy() to avoid the SettingWithCopyWarning
+    ].copy()
     extra_bonds.loc[:, "total_pay_val"] = 0
 
     final_df = pd.concat([filtered_df, extra_bonds], ignore_index=True)
     final_df.drop(["total_pay_val"], axis=1, inplace=True)
+    final_df = final_df.sort_values(by="pay_date", ascending=True)
 
     return final_df
