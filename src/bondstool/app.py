@@ -29,7 +29,7 @@ from bondstool.data.bonds import (
     get_recommended_bonds,
     normalize_payments,
 )
-from bondstool.utils import MAP_HEADINGS, get_style_by_condition
+from bondstool.utils import MAP_HEADINGS, get_style_by_condition, get_xlsx
 from dash import Dash, Input, Output, callback, dash_table, dcc, html
 
 exchange_rates = get_exchange_rates()
@@ -164,8 +164,27 @@ app.layout = html.Div(
                 columns=[{"name": col, "id": col} for col in payment_schedule.columns],
                 data=payment_schedule.to_dict("records"),
             ),
-            style={"margin-top": "10px"},
+            style={"margin-top": "10px", "margin-bottom": "20px"},
         ),
+        html.Div(
+            html.Button(
+                "Завантажити ексель",
+                id="btn_xlsx",
+                style={
+                    "font-weight": "bold",
+                    "padding": "10px 20px",
+                    "border": "none",
+                    "border-radius": "5px",
+                    "cursor": "pointer",
+                },
+            ),
+            style={
+                "display": "flex",
+                "justify-content": "flex-end",
+                "margin-right": "20px",
+            },
+        ),
+        dcc.Download(id="download-dataframe-xlsx"),
     ]
 )
 
@@ -235,6 +254,18 @@ def toggle_dropdown(n_clicks):
     if n_clicks and n_clicks % 2 != 0:
         return {"display": "block"}
     return {"display": "none"}
+
+
+@callback(
+    Output("download-dataframe-xlsx", "data"),
+    Input("btn_xlsx", "n_clicks"),
+    prevent_initial_call=True,
+)
+def download_xlsx(n_clicks):
+
+    xlsx_bytes = get_xlsx(formatted_bag, payment_schedule)
+
+    return dcc.send_bytes(xlsx_bytes, "OVDP_analysis.xlsx")
 
 
 if __name__ == "__main__":

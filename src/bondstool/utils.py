@@ -1,3 +1,4 @@
+import io
 from datetime import datetime
 
 import pandas as pd
@@ -64,3 +65,34 @@ def get_style_by_condition(
                 }
             )
     return style_conditional
+
+
+def get_xlsx(bag: pd.DataFrame, schedule: pd.DataFrame):
+
+    bytes_io = io.BytesIO()
+    xslx_writer = pd.ExcelWriter(bytes_io, engine="xlsxwriter")
+
+    bag.to_excel(xslx_writer, sheet_name="Bag", index=False)
+    schedule.to_excel(xslx_writer, sheet_name="Schedule", index=False)
+
+    worksheet_bag = xslx_writer.sheets["Bag"]
+    worksheet_schedule = xslx_writer.sheets["Schedule"]
+
+    max_lengths_bag = [
+        max(bag[col].astype(str).apply(len).max(), len(col)) for col in bag.columns
+    ]
+    max_lengths_schedule = [
+        max(schedule[col].astype(str).apply(len).max(), len(col))
+        for col in schedule.columns
+    ]
+
+    for i, max_length in enumerate(max_lengths_bag):
+        worksheet_bag.set_column(i, i, max_length + 2)
+
+    for i, max_length in enumerate(max_lengths_schedule):
+        worksheet_schedule.set_column(i, i, max_length + 2)
+
+    xslx_writer.close()
+    bytes_io.seek(0)
+
+    return bytes_io.getvalue()
