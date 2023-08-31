@@ -98,10 +98,15 @@ app.layout = html.Div(
                         "text-align": "center",
                         "margin-bottom": "0.5px",
                         "font-size": "30px",
+                        "flex": "1",
                     },
                 ),
             ],
-            style={"display": "flex", "justify-content": "center"},
+            style={
+                "display": "flex",
+                "align-items": "center",
+                "justify-content": "center",
+            },
         ),
         dcc.Graph(id="graph-with-slider"),
         html.Div(

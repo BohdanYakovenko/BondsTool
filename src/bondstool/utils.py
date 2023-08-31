@@ -71,15 +71,14 @@ def get_xlsx(bag: pd.DataFrame, schedule: pd.DataFrame):
 
     with io.BytesIO() as bytes_io:
 
-        xslx_writer = pd.ExcelWriter(bytes_io, engine="xlsxwriter")
+        with pd.ExcelWriter(bytes_io, engine="xlsxwriter") as xslx_writer:
 
-        bag.to_excel(xslx_writer, sheet_name="Bag", index=False)
-        schedule.to_excel(xslx_writer, sheet_name="Schedule", index=False)
+            bag.to_excel(xslx_writer, sheet_name="Bag", index=False)
+            schedule.to_excel(xslx_writer, sheet_name="Schedule", index=False)
 
-        for sheet in xslx_writer.sheets.values():
-            sheet.autofit()
+            for sheet in xslx_writer.sheets.values():
+                sheet.autofit()
 
-        xslx_writer.close()
         bytes_io.seek(0)
 
         return bytes_io.getvalue()
