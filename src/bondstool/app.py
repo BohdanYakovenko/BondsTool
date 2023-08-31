@@ -32,7 +32,7 @@ from bondstool.data.bonds import (
 from bondstool.utils import (
     IMAGE_PATH,
     MAP_HEADINGS,
-    encode_image,
+    get_image_element,
     get_style_by_condition,
     get_xlsx,
 )
@@ -98,15 +98,7 @@ app.layout = html.Div(
     [
         html.Div(
             [
-                html.Img(
-                    src="data:image/png;base64,{}".format(encode_image(IMAGE_PATH)),
-                    style={
-                        "width": "auto",
-                        "height": "80px",
-                        "align-self": "center",
-                        "margin-right": "20px",
-                    },
-                ),
+                get_image_element(IMAGE_PATH),
                 html.H1(
                     "Аналітика облігацій",
                     style={
