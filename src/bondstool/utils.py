@@ -1,7 +1,10 @@
+import base64
 import io
 from datetime import datetime
 
 import pandas as pd
+
+IMAGE_PATH = "assets/logo-sota.png"
 
 MAP_HEADINGS = {
     "nominal": "Номінал",
@@ -82,3 +85,11 @@ def get_xlsx(bag: pd.DataFrame, schedule: pd.DataFrame):
         bytes_io.seek(0)
 
         return bytes_io.getvalue()
+
+
+def encode_image(image_path):
+
+    with open(image_path, "rb") as f:
+        image_base64 = base64.b64encode(f.read()).decode("utf-8")
+
+    return image_base64

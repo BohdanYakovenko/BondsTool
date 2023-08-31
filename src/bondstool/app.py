@@ -29,7 +29,13 @@ from bondstool.data.bonds import (
     get_recommended_bonds,
     normalize_payments,
 )
-from bondstool.utils import MAP_HEADINGS, get_style_by_condition, get_xlsx
+from bondstool.utils import (
+    IMAGE_PATH,
+    MAP_HEADINGS,
+    encode_image,
+    get_style_by_condition,
+    get_xlsx,
+)
 from dash import Dash, Input, Output, callback, dash_table, dcc, html
 
 exchange_rates = get_exchange_rates()
@@ -92,6 +98,15 @@ app.layout = html.Div(
     [
         html.Div(
             [
+                html.Img(
+                    src="data:image/png;base64,{}".format(encode_image(IMAGE_PATH)),
+                    style={
+                        "width": "auto",
+                        "height": "80px",
+                        "align-self": "center",
+                        "margin-right": "20px",
+                    },
+                ),
                 html.H1(
                     "Аналітика облігацій",
                     style={
