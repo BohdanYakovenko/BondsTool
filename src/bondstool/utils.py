@@ -1,3 +1,4 @@
+import io
 from datetime import datetime
 
 import pandas as pd
@@ -64,3 +65,20 @@ def get_style_by_condition(
                 }
             )
     return style_conditional
+
+
+def get_xlsx(bag: pd.DataFrame, schedule: pd.DataFrame):
+
+    with io.BytesIO() as bytes_io:
+
+        with pd.ExcelWriter(bytes_io, engine="xlsxwriter") as xslx_writer:
+
+            bag.to_excel(xslx_writer, sheet_name="Bag", index=False)
+            schedule.to_excel(xslx_writer, sheet_name="Schedule", index=False)
+
+            for sheet in xslx_writer.sheets.values():
+                sheet.autofit()
+
+        bytes_io.seek(0)
+
+        return bytes_io.getvalue()
