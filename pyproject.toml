@@ -11,7 +11,7 @@ dependencies = [
     "pandas",
     "plotly",
     "dash",
-    "openpyxl",
+    "xlsxwriter",
     "beautifulsoup4"
 ]
 

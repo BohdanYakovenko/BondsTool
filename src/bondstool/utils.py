@@ -69,30 +69,17 @@ def get_style_by_condition(
 
 def get_xlsx(bag: pd.DataFrame, schedule: pd.DataFrame):
 
-    bytes_io = io.BytesIO()
-    xslx_writer = pd.ExcelWriter(bytes_io, engine="xlsxwriter")
+    with io.BytesIO() as bytes_io:
 
-    bag.to_excel(xslx_writer, sheet_name="Bag", index=False)
-    schedule.to_excel(xslx_writer, sheet_name="Schedule", index=False)
+        xslx_writer = pd.ExcelWriter(bytes_io, engine="xlsxwriter")
 
-    worksheet_bag = xslx_writer.sheets["Bag"]
-    worksheet_schedule = xslx_writer.sheets["Schedule"]
+        bag.to_excel(xslx_writer, sheet_name="Bag", index=False)
+        schedule.to_excel(xslx_writer, sheet_name="Schedule", index=False)
 
-    max_lengths_bag = [
-        max(bag[col].astype(str).apply(len).max(), len(col)) for col in bag.columns
-    ]
-    max_lengths_schedule = [
-        max(schedule[col].astype(str).apply(len).max(), len(col))
-        for col in schedule.columns
-    ]
+        for sheet in xslx_writer.sheets.values():
+            sheet.autofit()
 
-    for i, max_length in enumerate(max_lengths_bag):
-        worksheet_bag.set_column(i, i, max_length + 2)
+        xslx_writer.close()
+        bytes_io.seek(0)
 
-    for i, max_length in enumerate(max_lengths_schedule):
-        worksheet_schedule.set_column(i, i, max_length + 2)
-
-    xslx_writer.close()
-    bytes_io.seek(0)
-
-    return bytes_io.getvalue()
+        return bytes_io.getvalue()
