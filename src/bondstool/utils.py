@@ -4,7 +4,7 @@ from datetime import datetime
 
 import pandas as pd
 
-IMAGE_PATH = "assets/logo-sota.png"
+IMAGE_PATH = "assets/logo.png"
 
 MAP_HEADINGS = {
     "nominal": "Номінал",
