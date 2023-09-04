@@ -1,7 +1,12 @@
+import base64
 import io
+import os
 from datetime import datetime
 
 import pandas as pd
+from dash import html
+
+IMAGE_PATH = "assets/logo.png"
 
 MAP_HEADINGS = {
     "nominal": "Номінал",
@@ -82,3 +87,35 @@ def get_xlsx(bag: pd.DataFrame, schedule: pd.DataFrame):
         bytes_io.seek(0)
 
         return bytes_io.getvalue()
+
+
+def encode_image(image_path):
+
+    if os.path.exists(image_path):
+
+        with open(image_path, "rb") as f:
+            image_base64 = base64.b64encode(f.read()).decode("utf-8")
+
+        return image_base64
+
+    return None
+
+
+def get_image_element(image_path):
+
+    encoded_image = encode_image(image_path)
+
+    if encoded_image:
+        return html.Img(
+            src="data:image/png;base64,{}".format(encoded_image),
+            style={
+                "width": "auto",
+                "height": "80px",
+                "align-self": "center",
+                "margin-right": "20px",
+            },
+        )
+
+    else:
+
+        return None

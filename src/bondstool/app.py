@@ -29,7 +29,13 @@ from bondstool.data.bonds import (
     get_recommended_bonds,
     normalize_payments,
 )
-from bondstool.utils import MAP_HEADINGS, get_style_by_condition, get_xlsx
+from bondstool.utils import (
+    IMAGE_PATH,
+    MAP_HEADINGS,
+    get_image_element,
+    get_style_by_condition,
+    get_xlsx,
+)
 from dash import Dash, Input, Output, callback, dash_table, dcc, html
 
 exchange_rates = get_exchange_rates()
@@ -92,20 +98,29 @@ app.layout = html.Div(
     [
         html.Div(
             [
-                html.H1(
-                    "Аналітика облігацій",
+                html.Div(
+                    get_image_element(IMAGE_PATH),
                     style={
-                        "text-align": "center",
-                        "margin-bottom": "0.5px",
-                        "font-size": "30px",
-                        "flex": "1",
+                        "flex": "0",
+                        "float": "left",
                     },
+                ),
+                html.Div(
+                    html.H1(
+                        "Аналітика облігацій",
+                        style={
+                            "text-align": "center",
+                            "font-size": "30px",
+                            "width": "100%",
+                            "flex": "1",
+                        },
+                    ),
                 ),
             ],
             style={
                 "display": "flex",
-                "align-items": "center",
                 "justify-content": "center",
+                "align-items": "center",
             },
         ),
         dcc.Graph(id="graph-with-slider"),
@@ -149,7 +164,12 @@ app.layout = html.Div(
         ),
         html.Div(id="search-output"),
         html.H3(
-            "Портфель облігацій", style={"text-align": "center", "margin-top": "20px"}
+            "Портфель облігацій",
+            style={
+                "text-align": "center",
+                "margin-top": "20px",
+                "font-size": "20px",
+            },
         ),
         html.Div(
             dash_table.DataTable(
@@ -161,7 +181,12 @@ app.layout = html.Div(
             style={"margin-top": "10px"},
         ),
         html.H4(
-            "Графік платежів", style={"text-align": "center", "margin-top": "20px"}
+            "Графік платежів",
+            style={
+                "text-align": "center",
+                "margin-top": "20px",
+                "font-size": "20px",
+            },
         ),
         html.Div(
             dash_table.DataTable(
