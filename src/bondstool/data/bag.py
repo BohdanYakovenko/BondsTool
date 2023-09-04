@@ -17,8 +17,10 @@ def verify_excel_file(file_path):
     missing_columns = set(expected_columns) - set(df.columns)
 
     if missing_columns:
-        error_message = f"The Excel file is missing the following columns: " \
-                        f"{', '.join(missing_columns)}"
+        error_message = (
+            f"The Excel file is missing the following columns: "
+            f"{', '.join(missing_columns)}"
+        )
         raise ValueError(error_message)
 
     if df.isna().any().any():
