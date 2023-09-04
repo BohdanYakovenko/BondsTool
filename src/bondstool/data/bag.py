@@ -1,51 +1,44 @@
-import sys
 
 import numpy as np
 import pandas as pd
 from bondstool.utils import MAP_HEADINGS, split_dataframe
 
 OVDP_BAG_PATH = "data/ovdp_input_data.xlsx"
-ISIN_PREFIX = "UA4000"
 
 
 def verify_excel_file(file_path):
-    try:
-        df = pd.read_excel(file_path)
+    df = pd.read_excel(file_path)
 
-        expected_columns = [
-            "ISIN",
-            "Кілть в портфелі",
-            "Загальна сума придбання",
-            "Податок на прибуток ЮО (ПнПр)",
-        ]
-        missing_columns = set(expected_columns) - set(df.columns)
+    expected_columns = [
+        "ISIN",
+        "Кілть в портфелі",
+        "Загальна сума придбання",
+        "Податок на прибуток ЮО (ПнПр)",
+    ]
+    missing_columns = set(expected_columns) - set(df.columns)
 
-        if missing_columns:
-            sys.exit(
-                f"Warning: The Excel file is missing the following columns: "
-                f"{', '.join(missing_columns)}"
+    if missing_columns:
+        error_message = f"The Excel file is missing the following columns: " \
+                        f"{', '.join(missing_columns)}"
+        raise ValueError(error_message)
+
+    if df.isna().any().any():
+        raise ValueError("Warning: The Excel file contains empty cells.")
+
+    expected_types = [object, np.int64, (np.int64, float), (np.int64, float)]
+
+    for column_name, expected_type in zip(expected_columns, expected_types):
+        column_type = df[column_name].dtype
+
+        if not isinstance(expected_type, tuple):
+            expected_type = (expected_type,)
+
+        if column_type not in expected_type:
+            raise ValueError(
+                f"Warning: Column '{column_name}' has incorrect data type."
             )
 
-        if df.isna().any().any():
-            sys.exit("Warning: The Excel file contains empty cells.")
-
-        expected_types = [object, np.int64, (np.int64, float), (np.int64, float)]
-
-        for column_name, expected_type in zip(expected_columns, expected_types):
-            column_type = df[column_name].dtype
-
-            if not isinstance(expected_type, tuple):
-                expected_type = (expected_type,)
-
-            if column_type not in expected_type:
-                sys.exit(f"Warning: Column '{column_name}' has incorrect data type.")
-
-        return df
-
-    except pd.errors.ParserError:
-        sys.exit("Error: The Excel file is not in the correct format.")
-    except Exception as e:
-        sys.exit(f"An error occurred: {e}")
+    return df
 
 
 def read_bag_info():
