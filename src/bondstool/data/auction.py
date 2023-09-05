@@ -4,11 +4,11 @@ from xml.etree.cElementTree import XML, Element
 
 import pandas as pd
 import requests
-from bondstool.data.bag import ISIN_PREFIX
 from bs4 import BeautifulSoup
 
 AUC_DOMAIN = "https://mof.gov.ua"
 AUC_URL = AUC_DOMAIN + "/uk/ogoloshennja-ta-rezultati-aukcioniv"
+ISIN_PREFIX = "UA4000"
 
 
 def get_doc_url_date():
