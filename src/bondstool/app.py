@@ -100,9 +100,7 @@ def create_slider(id):
 sliders = [create_slider(isin) for isin in isin_df["ISIN"].values]
 
 
-def generate_layout(formatted_bag, payment_schedule, sliders):
-
-    layout = html.Div(
+app.layout = html.Div(
         [
             html.Div(
                 [
@@ -246,11 +244,6 @@ def generate_layout(formatted_bag, payment_schedule, sliders):
         ]
     )
 
-    return layout
-
-
-app.layout = generate_layout(formatted_bag, payment_schedule, sliders)
-
 
 def parse_contents(contents, filename):
     global bag, payment_schedule, formatted_bag, monthly_bag, recommended_bonds, base_fig, sliders
@@ -268,7 +261,13 @@ def parse_contents(contents, filename):
     #        'There was an error processing this file.'
     #    ])
 
-    bag = contents
+    _, data = contents.split(',')
+
+    padding = '=' * (4 - (len(data) % 4))
+    decoded_data = base64.b64decode(data + padding)
+
+    bag = pd.read_excel(io.BytesIO(decoded_data))
+    bag = pd.DataFrame(bag)
     map_headings = {
         "Кілть в портфелі": "quantity",
         "Загальна сума придбання": "expenditure",
@@ -290,9 +289,7 @@ def parse_contents(contents, filename):
 
     sliders = [create_slider(isin) for isin in isin_df["ISIN"].values]
 
-    layout = generate_layout(formatted_bag, payment_schedule, sliders)
-
-    return layout
+    return formatted_bag, payment_schedule, recommended_bonds, base_fig, sliders
 
 
 sliders_input = [Input(isin, "value") for isin in isin_df["ISIN"].values]
@@ -301,48 +298,55 @@ uploaded_data = None
 
 
 @app.callback(
-    Output("output-data-upload", "children"),
-    Input("upload-data", "contents"),
-    State("upload-data", "filename"),
-    State("upload-data", "last_modified"),
+    [Output("output-data-upload", "children"),
+     Output("bag-table", "columns"),
+     Output("bag-table", "data"),
+     Output("bag-table", "style_data_conditional"),
+     Output("payment-schedule", "columns"),
+     Output("payment-schedule", "data"),
+     Output("graph-with-slider", "figure", allow_duplicate=True),
+     Output("dropdown", "options"),
+     Output("dropdown", "style", allow_duplicate=True)],
+    [Input("upload-data", "contents")],
+    [State("upload-data", "filename")],
+    prevent_initial_call=True
 )
-def update_data_and_objects(contents, refresh_clicks, filename):
-    global uploaded_data, bag, payment_schedule, formatted_bag, monthly_bag, recommended_bonds, base_fig
+def update_data_and_objects(contents, filename):
+    global bag, payment_schedule, formatted_bag, monthly_bag, recommended_bonds, base_fig, sliders
 
-    if dash.callback_context.triggered:
-        triggered_id = dash.callback_context.triggered[0]["prop_id"].split(".")[0]
+    if contents is None:
+        raise PreventUpdate
 
-        if triggered_id == "upload-data":
-            if uploaded_data is not None:
-                raise PreventUpdate
+    formatted_bag, payment_schedule, recommended_bonds, base_fig, sliders = parse_contents(contents, filename)
 
-            # Process the uploaded file, assuming it's an Excel file
-            content_type, content_string = contents.split(",")
-            decoded = base64.b64decode(content_string)
-            df = pd.read_excel(io.BytesIO(decoded))
-
-            # Store the uploaded data in the global variable
-            uploaded_data = df
-
-            app.layout = html.Div()
-
-            app.layout = parse_contents(uploaded_data, filename)
-
-            return app.layout
-
-        elif triggered_id == "refresh-button":
-            if uploaded_data is None:
-                raise PreventUpdate
-
-            # Process the uploaded data and update the objects
-
-        # Generate the updated layout
-
-        return app.layout
-
-    raise PreventUpdate
+    json_formatted_bag = formatted_bag.to_dict('records')
+    json_payment_schedule = payment_schedule.to_dict('records')
 
 
+    style_data_conditional = get_style_by_condition(formatted_bag)
+
+    dropdown_options = [
+        {
+            "label": "Рекомендовані облігації",
+            "value": "Рекомендовані облігації",
+        }
+    ] + [{"label": isin, "value": isin} for isin in raw_bonds["ISIN"]]
+
+    dropdown_style = {"display": "none"} if not dropdown_options else {}
+
+    return (
+        html.Div(["File uploaded successfully."]),
+        [{"name": col, "id": col} for col in json_formatted_bag[0].keys()],
+        json_formatted_bag,
+        style_data_conditional,
+        [{"name": col, "id": col} for col in json_payment_schedule[0].keys()],
+        json_payment_schedule,
+        base_fig,
+        dropdown_options,
+        dropdown_style,
+    )
+
+    
 @callback(Output("graph-with-slider", "figure"), *sliders_input)
 def update_figure(*amounts):
 
