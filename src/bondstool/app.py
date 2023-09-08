@@ -102,6 +102,7 @@ def create_slider(id, recommended_bonds):
 
 app.layout = html.Div(
         [
+            html.Div(id='dummy-trigger', style={'display': 'none'}),
             html.Div(
                 [
                     html.Div(
@@ -195,15 +196,7 @@ app.layout = html.Div(
                     "font-size": "20px",
                 },
             ),
-            html.Div(
-                dash_table.DataTable(
-                    id="bag-table",
-                    columns=[{"name": col, "id": col} for col in formatted_bag.columns],
-                    data=formatted_bag.to_dict("records"),
-                    style_data_conditional=get_style_by_condition(formatted_bag),
-                ),
-                style={"margin-top": "10px"},
-            ),
+            html.Div(id="bag-table"),
             html.H4(
                 "Графік платежів",
                 style={
@@ -212,16 +205,7 @@ app.layout = html.Div(
                     "font-size": "20px",
                 },
             ),
-            html.Div(
-                dash_table.DataTable(
-                    id="payment-schedule",
-                    columns=[
-                        {"name": col, "id": col} for col in payment_schedule.columns
-                    ],
-                    data=payment_schedule.to_dict("records"),
-                ),
-                style={"margin-top": "10px", "margin-bottom": "20px"},
-            ),
+            html.Div(id="payment-schedule"),
             html.Div(
                 html.Button(
                     "Завантажити ексель",
@@ -304,7 +288,9 @@ sliders_input = [Input(isin, "value") for isin in isin_df["ISIN"].values]
 uploaded_data = None
 
 
-@callback(Output('intermediate-bag', 'data'))
+@callback(Output('intermediate-bag', 'data', allow_duplicate=True), 
+        Input('dummy-trigger', 'children'),
+        prevent_initial_call=True)
 def get_bag(_):
 
     bag = read_bag_info()
@@ -317,7 +303,7 @@ def get_bag(_):
     [Output("intermediate-payment-schedule", 'data'),
      Output("intermediate-formatted-bag", 'data'),
      Output("intermediate-monthly-bag", 'data')],
-    Input("intermediate-monthly-bag", 'data')
+    Input("intermediate-bag", 'data')
     )
 def get_bag_derivatives(data):
 
@@ -338,7 +324,7 @@ def get_bag_derivatives(data):
 @callback(
     [Output("intermediate-recommended-bonds", 'data'),
      Output("intermediate-base-fig", 'data')],
-    Input('intermediate-bag', 'data')
+    Input('intermediate-monthly-bag', 'data')
     )
 def get_monthly_bag_derivatives(data):
 
@@ -355,7 +341,7 @@ def get_monthly_bag_derivatives(data):
 
 @app.callback(
     [Output("output-data-upload", "children"),
-     Output('intermediate-bag', "data")],
+     Output('intermediate-bag', "data", allow_duplicate=True)],
     [Input("upload-data", "contents")],
     [State("upload-data", "filename")],
     prevent_initial_call=True
@@ -389,6 +375,9 @@ def update_data_and_objects(contents, filename):
     Input('intermediate-recommended-bonds', 'data')
     )
 def get_sliders(data):
+
+    if data is None:
+        raise PreventUpdate
 
     recommended_bonds = json.loads(data)
 
@@ -424,46 +413,48 @@ def update_figure(base_fig_data, monthly_bag_data, *amounts):
      Input("dropdown", "value"),
      Input("intermediate-recommended-bonds", "data")],
 )
-def update_search_output(input_value, selected_option, recommended_bonds_data):
+def update_search_output(input_value, selected_option, data):
 
-    recommended_bonds = json.load(recommended_bonds_data)
+ if input_value is not None and selected_option is not None:
+        recommended_bonds = json.load(data)
 
-    if selected_option == "Рекомендовані облігації":
-        df = recommended_bonds
-    elif input_value or selected_option:
-        search_value = input_value or selected_option
-        df = bonds.loc[bonds["ISIN"] == search_value]
-    else:
-        return None
+        if selected_option == "Рекомендовані облігації":
+            df = recommended_bonds
+        elif input_value or selected_option:
+            search_value = input_value or selected_option
+            df = bonds.loc[bonds["ISIN"] == search_value]
+        else:
+            return None
 
-    df = df.drop(
-        columns=[
-            "pay_date",
-            "pay_val",
-            "month_end",
-            "emit_okpo",
-            "cpcode_cfi",
-            "sum_pay_val",
-            "cptype",
-            "exchange_rate",
-        ]
-    )
-    df = df.drop_duplicates()
-    df["issue_date"] = pd.to_datetime(df["issue_date"]).dt.strftime("%d-%m-%Y")
-    df["maturity_date"] = df["maturity_date"].dt.strftime("%d-%m-%Y")
-    df["profitability"] = df["profitability"].round(2)
-    df = df.rename(columns=MAP_HEADINGS)
+        df = df.drop(
+            columns=[
+                "pay_date",
+                "pay_val",
+                "month_end",
+                "emit_okpo",
+                "cpcode_cfi",
+                "sum_pay_val",
+                "cptype",
+                "exchange_rate",
+            ]
+        )
+        df = df.drop_duplicates()
+        df["issue_date"] = pd.to_datetime(df["issue_date"]).dt.strftime("%d-%m-%Y")
+        df["maturity_date"] = df["maturity_date"].dt.strftime("%d-%m-%Y")
+        df["profitability"] = df["profitability"].round(2)
+        df = df.rename(columns=MAP_HEADINGS)
 
-    table_data = df.to_dict("records")
-    table_columns = [{"name": col, "id": col} for col in df.columns]
+        table_data = df.to_dict("records")
+        table_columns = [{"name": col, "id": col} for col in df.columns]
 
-    table = dash_table.DataTable(
-        id="combined-table",
-        columns=table_columns,
-        data=table_data,
-    )
+        table = dash_table.DataTable(
+            id="combined-table",
+            columns=table_columns,
+            data=table_data,
+        )
 
-    return table
+        return table
+
 
 
 @callback(Output("dropdown", "style"), [Input("dropdown-button", "n_clicks")])
@@ -471,6 +462,46 @@ def toggle_dropdown(n_clicks):
     if n_clicks and n_clicks % 2 != 0:
         return {"display": "block"}
     return {"display": "none"}
+
+
+@callback(Output("bag-table", "table"),
+        [Input("intermediate-formatted-bag", "data")]
+        )
+def get_bag_table(data):
+
+    formatted_bag = json.load(data)
+
+    table = html.Div(
+            dash_table.DataTable(
+                    id="bag-table",
+                    columns=[{"name": col, "id": col} for col in formatted_bag.columns],
+                    data=formatted_bag.to_dict("records"),
+                    style_data_conditional=get_style_by_condition(formatted_bag),
+                ),
+                style={"margin-top": "10px"})
+    
+    return table
+
+
+@callback(Output("payment-schedule", "table"),
+        [Input("intermediate-payment-schedule", "data")]
+        )
+def get_schedule_table(data):
+
+    payment_schedule = json.load(data)
+
+    table = html.Div(
+                dash_table.DataTable(
+                    id="payment-schedule",
+                    columns=[
+                        {"name": col, "id": col} for col in payment_schedule.columns
+                    ],
+                    data=payment_schedule.to_dict("records"),
+                ),
+                style={"margin-top": "10px", "margin-bottom": "20px"},
+            ),
+    
+    return table
 
 
 @callback(
