@@ -307,6 +307,9 @@ def get_bag(_):
     )
 def get_bag_derivatives(data):
 
+    if data is None:
+        raise PreventUpdate
+
     bag = json.loads(data)
 
     payment_schedule = get_payment_schedule(bag)
@@ -371,7 +374,7 @@ def update_data_and_objects(contents, filename):
 
 
 @callback(
-    Output("sliders", 'data'),
+    Output("sliders", 'children'),
     Input('intermediate-recommended-bonds', 'data')
     )
 def get_sliders(data):
@@ -387,9 +390,11 @@ def get_sliders(data):
 
     
 @callback(
-    [Output("graph-with-slider", "figure"), *sliders_input],
+    [Output("graph-with-slider", "figure"),
+     Output("sliders", "children", allow_duplicate=True)],
     [Input("intermediate-base-fig", "data"),
     Input("intermediate-monthly-bag", "data")],
+    prevent_initial_call=True,
     )
 def update_figure(base_fig_data, monthly_bag_data, *amounts):
 
@@ -464,12 +469,12 @@ def toggle_dropdown(n_clicks):
     return {"display": "none"}
 
 
-@callback(Output("bag-table", "table"),
+@callback(Output("bag-table", "children"),
         [Input("intermediate-formatted-bag", "data")]
         )
 def get_bag_table(data):
 
-    formatted_bag = json.load(data)
+    formatted_bag = json.loads(data)
 
     table = html.Div(
             dash_table.DataTable(
@@ -483,7 +488,7 @@ def get_bag_table(data):
     return table
 
 
-@callback(Output("payment-schedule", "table"),
+@callback(Output("payment-schedule", "children"),
         [Input("intermediate-payment-schedule", "data")]
         )
 def get_schedule_table(data):
