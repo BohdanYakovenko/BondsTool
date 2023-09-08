@@ -288,10 +288,10 @@ sliders_input = [Input(isin, "value") for isin in isin_df["ISIN"].values]
 uploaded_data = None
 
 
-@callback(Output('intermediate-bag', 'data', allow_duplicate=True), 
+@callback(Output('intermediate-bag', 'data'), 
         Input('dummy-trigger', 'children'),
-        prevent_initial_call=True)
-def get_bag(_):
+        )
+def get_bag():
 
     bag = read_bag_info()
     bag = merge_bonds_info(bag, bonds)
@@ -307,10 +307,8 @@ def get_bag(_):
     )
 def get_bag_derivatives(data):
 
-    if data is None:
-        raise PreventUpdate
-
-    bag = json.loads(data)
+    #json.loads(data)
+    bag = pd.read_json(data, orient='split')
 
     payment_schedule = get_payment_schedule(bag)
 
@@ -331,14 +329,15 @@ def get_bag_derivatives(data):
     )
 def get_monthly_bag_derivatives(data):
 
-    monthly_bag = json.loads(data)
+        #json.loads(data)
+        monthly_bag = pd.read_json(data, orient='split')
 
-    recommended_bonds = get_recommended_bonds(bonds, monthly_bag)
+        recommended_bonds = get_recommended_bonds(bonds, monthly_bag)
 
-    base_fig = make_base_monthly_payments_fig(monthly_bag)
+        base_fig = make_base_monthly_payments_fig(monthly_bag)
 
-    return (recommended_bonds.to_json(date_format='iso', orient='split'),
-            base_fig.to_json(date_format='iso', orient='split'))
+        return (recommended_bonds.to_json(date_format='iso', orient='split'),
+                base_fig.to_json(date_format='iso', orient='split'))
 
 
 
@@ -379,10 +378,8 @@ def update_data_and_objects(contents, filename):
     )
 def get_sliders(data):
 
-    if data is None:
-        raise PreventUpdate
-
-    recommended_bonds = json.loads(data)
+    #json.loads(data)
+    recommended_bonds = pd.read_json(data, orient='split')
 
     sliders = [create_slider(isin, recommended_bonds) for isin in isin_df["ISIN"].values]
 
@@ -398,8 +395,11 @@ def get_sliders(data):
     )
 def update_figure(base_fig_data, monthly_bag_data, *amounts):
 
-    base_fig = json.loads(base_fig_data)
-    monthly_bag = json.loads(monthly_bag_data)
+    #json.loads(base_fig_data)
+    #json.loads(monthly_bag_data)
+
+    base_fig = pd.read_json(base_fig_data, orient='split')
+    monthly_bag = pd.read_json(monthly_bag_data, orient='split')
 
     potential_payments = calc_potential_payments(
         trading_bonds, amounts, monthly_bag, isin_df
@@ -421,7 +421,9 @@ def update_figure(base_fig_data, monthly_bag_data, *amounts):
 def update_search_output(input_value, selected_option, data):
 
  if input_value is not None and selected_option is not None:
-        recommended_bonds = json.load(data)
+
+        #json.loads(data)
+        recommended_bonds = pd.read_json(data, orient='split')
 
         if selected_option == "Рекомендовані облігації":
             df = recommended_bonds
@@ -474,7 +476,8 @@ def toggle_dropdown(n_clicks):
         )
 def get_bag_table(data):
 
-    formatted_bag = json.loads(data)
+    #json.loads(data)
+    formatted_bag = pd.read_json(data, orient='split')
 
     table = html.Div(
             dash_table.DataTable(
@@ -493,7 +496,8 @@ def get_bag_table(data):
         )
 def get_schedule_table(data):
 
-    payment_schedule = json.load(data)
+    #json.loads(data)
+    payment_schedule = pd.read_json(data, orient='split')
 
     table = html.Div(
                 dash_table.DataTable(
@@ -518,8 +522,11 @@ def get_schedule_table(data):
 )
 def download_xlsx(n_clicks, formatted_bag_data, payment_schedule_data):
 
-    formatted_bag = json.load(formatted_bag_data)
-    payment_schedule = json.load(payment_schedule_data)
+    #json.loads(formatted_bag_data)
+    #json.loads(payment_schedule_data)
+
+    formatted_bag = pd.read_json(formatted_bag_data, orient='split')
+    payment_schedule = pd.read_json(payment_schedule_data, orient='split')
 
     xlsx_bytes = get_xlsx(formatted_bag, payment_schedule)
 
