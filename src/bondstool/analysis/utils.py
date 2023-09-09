@@ -32,10 +32,13 @@ def calc_potential_payments(
             * trading_bonds.loc[mask, "exchange_rate"]
         )
 
-    potential_payments = payments_by_month(trading_bonds, pay_col="total_pay_val")
+    potential_payments = payments_by_month(trading_bonds, pay_col="sum_pay_val")
 
     df = pd.concat((bag_payments, potential_payments))
     df = payments_by_month(df)
+    df.reset_index(inplace=True)
+
+    df.loc[:, 'month_end'] = df['month_end'].astype(str)
     # TODO: omit if filling is not needed
     df = fill_missing_months(df)
     return df
