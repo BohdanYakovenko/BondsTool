@@ -321,8 +321,8 @@ def get_bag_derivatives(data):
 
     monthly_bag.reset_index(inplace=True)
 
-    column_names = ['month_end', 'total_pay_val']  # Replace with your actual column names
-    monthly_bag.columns = column_names
+    #column_names = ['month_end', 'total_pay_val']  # Replace with your actual column names
+    #monthly_bag.columns = column_names
 
     return (payment_schedule.to_json(date_format='iso', orient='split'),
             formatted_bag.to_json(date_format='iso', orient='split'),
@@ -339,6 +339,7 @@ def get_monthly_bag_derivatives(data):
         #json.loads(data)
         dates_columns = ["month_end"]
         monthly_bag = pd.read_json(data, orient='split', convert_dates=dates_columns)
+        monthly_bag.set_index('month_end', inplace=True)
         #monthly_bag.reset_index(inplace=True)
 
         #column_names = ['month_end', 'total_pay_val']  # Replace with your actual column names
@@ -401,21 +402,23 @@ def get_sliders(data):
 
     
 @callback(
-    [Output("graph-with-slider", "figure"),
-     Output("sliders", "children", allow_duplicate=True)],
+    Output("graph-with-slider", "figure"),
     [Input("intermediate-base-fig", "data"),
-    Input("intermediate-monthly-bag", "data")],
-    prevent_initial_call=True,
+     Input("intermediate-monthly-bag", "data"),
+     Input("sliders", "children")],
+     prevent_initial_call=True,
     )
 def update_figure(base_fig_data, monthly_bag_data, *amounts):
 
     #json.loads(base_fig_data)
     #json.loads(monthly_bag_data)
 
-    #dates_columns = ["month_end"]
+
+    dates_columns = ["month_end"]
 
     base_fig = pio.from_json(base_fig_data)
-    monthly_bag = pd.read_json(monthly_bag_data, orient='split', convert_dates=True)
+    monthly_bag = pd.read_json(monthly_bag_data, orient='split', convert_dates=dates_columns)
+    monthly_bag.set_index('month_end', inplace=True)
 
     potential_payments = calc_potential_payments(
         trading_bonds, amounts, monthly_bag, isin_df

@@ -89,7 +89,7 @@ def get_recommended_bonds(bonds: pd.DataFrame, monthly_bag: pd.DataFrame):
 
     merged_df = bonds_last_payment.merge(monthly_bag, on="month_end")
     filtered_df = merged_df.loc[
-        merged_df["month_end"] <= monthly_bag.mean().values[0]
+        merged_df["total_pay_val"] <= monthly_bag.mean().values[0]
     ]
 
     monthly_bag = monthly_bag.reset_index()
