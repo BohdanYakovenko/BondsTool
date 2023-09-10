@@ -117,19 +117,19 @@ app.layout = html.Div(
             ),
             dcc.Upload(
                 id="upload-data",
-                children=html.Div(["Drag and Drop or ", html.A("Select Files")]),
+                children=html.Div(["Перетягніть або ", html.A("Виберіть файли")]),
                 style={
-                    "width": "100%",
-                    "height": "60px",
-                    "lineHeight": "60px",
+                    "width": "95%",
+                    "height": "40px",  # You can adjust the height as needed
+                    "lineHeight": "40px",
                     "borderWidth": "1px",
                     "borderStyle": "dashed",
                     "borderRadius": "5px",
                     "textAlign": "center",
-                    "margin": "10px",
+                    "margin": "10px auto",
+                    "cursor": "pointer",
                 },
             ),
-            html.Div(id="output-data-upload"),
             dcc.Graph(id="graph-with-slider"),
             html.Div(
                 [
@@ -215,7 +215,6 @@ app.layout = html.Div(
                 },
             ),
             dcc.Download(id="download-dataframe-xlsx"),
-
             dcc.Store(id='intermediate-bag'),
             dcc.Store(id="intermediate-payment-schedule"),
             dcc.Store(id="intermediate-formatted-bag"),
