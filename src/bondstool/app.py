@@ -2,7 +2,7 @@ import base64
 import io
 import plotly.io as pio
 import json
-import dash
+from dash import ALL
 import numpy as np
 import pandas as pd
 from bondstool.analysis.plot import (
@@ -77,7 +77,7 @@ app = Dash(__name__)
 SLIDER_STEPS = np.arange(0, 5000, 200)
 
 
-def create_slider(id, recommended_bonds):
+def create_slider(id, index, recommended_bonds):
     if id in recommended_bonds["ISIN"].values:
         label_style = {"color": "red"}
     else:
@@ -92,7 +92,7 @@ def create_slider(id, recommended_bonds):
                 step=None,
                 value=SLIDER_STEPS.min(),
                 marks={str(val): str(val) for val in SLIDER_STEPS},
-                id=id,
+                id={"type": 'isin_slider', 'index':index},
             ),
         ]
     )
@@ -173,7 +173,7 @@ app.layout = html.Div(
                 ],
                 style={"display": "flex", "justify-content": "flex-end"},
             ),
-            html.Div(id="sliders"),
+            html.Div(id="sliders", children=[]),
             dcc.Input(id="search-input", type="text", placeholder="Введіть ISIN"),
             html.Button("▼", id="dropdown-button"),
             dcc.Dropdown(
@@ -356,8 +356,7 @@ def get_monthly_bag_derivatives(data):
 
 
 @app.callback(
-    [Output("output-data-upload", "children"),
-     Output('intermediate-bag', "data", allow_duplicate=True)],
+    Output('intermediate-bag', "data", allow_duplicate=True),
     [Input("upload-data", "contents")],
     [State("upload-data", "filename")],
     prevent_initial_call=True
@@ -396,7 +395,7 @@ def get_sliders(data):
     #dates_columns = ["maturity_date", "issue_date", "pay_date", "month_end"]
     recommended_bonds = pd.read_json(data, orient='split', convert_dates=True)
 
-    sliders = [create_slider(isin, recommended_bonds) for isin in isin_df["ISIN"].values]
+    sliders = [create_slider(isin, index, recommended_bonds) for index, isin in enumerate(isin_df["ISIN"])]
 
     return sliders
 
@@ -405,10 +404,10 @@ def get_sliders(data):
     Output("graph-with-slider", "figure"),
     [Input("intermediate-base-fig", "data"),
      Input("intermediate-monthly-bag", "data"),
-     Input("sliders", "children")],
+     Input({"type": "isin_slider", "index": ALL}, "value")],
      prevent_initial_call=True,
     )
-def update_figure(base_fig_data, monthly_bag_data, *amounts):
+def update_figure(base_fig_data, monthly_bag_data, amounts):
 
     #json.loads(base_fig_data)
     #json.loads(monthly_bag_data)
@@ -439,7 +438,7 @@ def update_figure(base_fig_data, monthly_bag_data, *amounts):
 )
 def update_search_output(input_value, selected_option, data):
 
- if input_value is not None and selected_option is not None:
+ if input_value is not None or selected_option is not None:
 
         #json.loads(data)
         dates_columns = ["maturity_date", "issue_date", "pay_date", "month_end"]

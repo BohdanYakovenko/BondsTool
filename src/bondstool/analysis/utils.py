@@ -20,7 +20,7 @@ def fill_missing_months(df: pd.DataFrame):
 
 def calc_potential_payments(
     trading_bonds: pd.DataFrame,
-    amounts: tuple,
+    amounts: list,
     bag_payments: pd.DataFrame,
     isin_df: pd.DataFrame,
 ):
@@ -32,7 +32,7 @@ def calc_potential_payments(
             * trading_bonds.loc[mask, "exchange_rate"]
         )
 
-    potential_payments = payments_by_month(trading_bonds, pay_col="sum_pay_val")
+    potential_payments = payments_by_month(trading_bonds, pay_col="total_pay_val")
 
     df = pd.concat((bag_payments, potential_payments))
     df = payments_by_month(df)
