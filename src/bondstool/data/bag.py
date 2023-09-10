@@ -1,6 +1,7 @@
+import io
+
 import numpy as np
 import pandas as pd
-import io
 from bondstool.utils import MAP_HEADINGS, split_dataframe
 
 OVDP_BAG_PATH = "data/ovdp_input_data.xlsx"
