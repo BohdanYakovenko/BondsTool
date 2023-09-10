@@ -1,7 +1,7 @@
 import base64
 import io
 import plotly.io as pio
-import json
+
 from dash import ALL
 import numpy as np
 import pandas as pd
@@ -52,24 +52,11 @@ raw_bonds = add_exchange_rates(raw_bonds, exchange_rates)
 bonds = normalize_payments(raw_bonds)
 bonds = calculate_profitability(bonds)
 
-#bag = read_bag_info()
-#bag = merge_bonds_info(bag, bonds)
-
 doc_url, auc_date = get_doc_url_date()
 
 isin_df = parse_xml_isins(get_auction_xml(doc_url))
 
 trading_bonds = filter_trading_bonds(isin_df, bonds)
-
-#payment_schedule = get_payment_schedule(bag)
-#formatted_bag = format_bag(bag)
-
-#monthly_bag = payments_by_month(bag)
-#monthly_bag = fill_missing_months(monthly_bag)
-
-#recommended_bonds = get_recommended_bonds(bonds, monthly_bag)
-
-#base_fig = make_base_monthly_payments_fig(monthly_bag)
 
 
 app = Dash(__name__)
@@ -96,9 +83,6 @@ def create_slider(id, index, recommended_bonds):
             ),
         ]
     )
-
-
-#sliders = [create_slider(isin) for isin in isin_df["ISIN"].values]
 
 
 app.layout = html.Div(
@@ -173,7 +157,7 @@ app.layout = html.Div(
                 ],
                 style={"display": "flex", "justify-content": "flex-end"},
             ),
-            html.Div(id="sliders", children=[]),
+            html.Div(id="sliders"),
             dcc.Input(id="search-input", type="text", placeholder="Введіть ISIN"),
             html.Button("▼", id="dropdown-button"),
             dcc.Dropdown(
@@ -197,7 +181,7 @@ app.layout = html.Div(
                     "font-size": "20px",
                 },
             ),
-            html.Div(id="bag-table"),
+            dash_table.DataTable(id="bag-table"),
             html.H4(
                 "Графік платежів",
                 style={
@@ -206,7 +190,12 @@ app.layout = html.Div(
                     "font-size": "20px",
                 },
             ),
-            html.Div(id="payment-schedule"),
+            html.Div(
+                dash_table.DataTable(
+                    id="payment-schedule",
+                ),
+                style={"margin-top": "10px", "margin-bottom": "20px"},
+            ),
             html.Div(
                 html.Button(
                     "Завантажити ексель",
@@ -240,19 +229,6 @@ app.layout = html.Div(
 def parse_contents(contents, filename):
     global bag, payment_schedule, formatted_bag, monthly_bag, recommended_bonds, base_fig, sliders
 
-    # content_type, content_string = contents.split(',')
-
-    # decoded = base64.b64decode(content_string)
-    # try:
-    #    if 'xlsx' in filename:
-    #        # Assume that the user uploaded an excel file
-    #        df = pd.read_excel(io.BytesIO(decoded))
-    # except Exception as e:
-    #    print(e)
-    #    return html.Div([
-    #        'There was an error processing this file.'
-    #    ])
-
     _, data = contents.split(',')
 
     padding = '=' * (4 - (len(data) % 4))
@@ -284,11 +260,6 @@ def parse_contents(contents, filename):
     return formatted_bag, payment_schedule, recommended_bonds, base_fig, sliders
 
 
-sliders_input = [Input(isin, "value") for isin in isin_df["ISIN"].values]
-
-uploaded_data = None
-
-
 @callback(Output('intermediate-bag', 'data'), 
         Input('dummy-trigger', 'n_clicks'),
         )
@@ -308,7 +279,6 @@ def get_bag(n_clicks):
     )
 def get_bag_derivatives(data):
 
-    #json.loads(data)
     dates_columns = ["pay_date", "month_end"]
     bag = pd.read_json(data, orient='split', convert_dates=dates_columns)
 
@@ -320,9 +290,6 @@ def get_bag_derivatives(data):
     monthly_bag = fill_missing_months(monthly_bag)
 
     monthly_bag.reset_index(inplace=True)
-
-    #column_names = ['month_end', 'total_pay_val']  # Replace with your actual column names
-    #monthly_bag.columns = column_names
 
     return (payment_schedule.to_json(date_format='iso', orient='split'),
             formatted_bag.to_json(date_format='iso', orient='split'),
@@ -336,15 +303,9 @@ def get_bag_derivatives(data):
     )
 def get_monthly_bag_derivatives(data):
 
-        #json.loads(data)
         dates_columns = ["month_end"]
         monthly_bag = pd.read_json(data, orient='split', convert_dates=dates_columns)
         monthly_bag.set_index('month_end', inplace=True)
-        #monthly_bag.reset_index(inplace=True)
-
-        #column_names = ['month_end', 'total_pay_val']  # Replace with your actual column names
-        #monthly_bag.columns = column_names
-
 
         recommended_bonds = get_recommended_bonds(bonds, monthly_bag)
 
@@ -391,8 +352,6 @@ def update_data_and_objects(contents, filename):
     )
 def get_sliders(data):
 
-    #json.loads(data)
-    #dates_columns = ["maturity_date", "issue_date", "pay_date", "month_end"]
     recommended_bonds = pd.read_json(data, orient='split', convert_dates=True)
 
     sliders = [create_slider(isin, index, recommended_bonds) for index, isin in enumerate(isin_df["ISIN"])]
@@ -408,10 +367,6 @@ def get_sliders(data):
      prevent_initial_call=True,
     )
 def update_figure(base_fig_data, monthly_bag_data, amounts):
-
-    #json.loads(base_fig_data)
-    #json.loads(monthly_bag_data)
-
 
     dates_columns = ["month_end"]
 
@@ -440,7 +395,6 @@ def update_search_output(input_value, selected_option, data):
 
  if input_value is not None or selected_option is not None:
 
-        #json.loads(data)
         dates_columns = ["maturity_date", "issue_date", "pay_date", "month_end"]
         recommended_bonds = pd.read_json(data, orient='split', convert_dates=dates_columns)
 
@@ -490,48 +444,36 @@ def toggle_dropdown(n_clicks):
     return {"display": "none"}
 
 
-@callback(Output("bag-table", "children"),
+@callback([Output("bag-table", "columns"),
+        Output("bag-table", "data"),
+        Output("bag-table", "style_data_conditional")],
         [Input("intermediate-formatted-bag", "data")]
         )
 def get_bag_table(data):
 
-    #json.loads(data)
     dates_columns = ["Дата погашеня"]
     formatted_bag = pd.read_json(data, orient='split', convert_dates=dates_columns)
 
-    table = html.Div(
-            dash_table.DataTable(
-                    id="bag-table",
-                    columns=[{"name": col, "id": col} for col in formatted_bag.columns],
-                    data=formatted_bag.to_dict("records"),
-                    style_data_conditional=get_style_by_condition(formatted_bag),
-                ),
-                style={"margin-top": "10px"})
+    columns = [{"name": col, "id": col} for col in formatted_bag.columns]
+    table_data = formatted_bag.to_dict("records")
+    style_data_conditional = get_style_by_condition(formatted_bag)
     
-    return table
+    return columns, table_data, style_data_conditional
 
 
-@callback(Output("payment-schedule", "children"),
+@callback([Output("payment-schedule", "columns"),
+        Output("payment-schedule", "data")],
         [Input("intermediate-payment-schedule", "data")]
         )
 def get_schedule_table(data):
 
-    #json.loads(data)
     dates_columns = ["Дата"]
     payment_schedule = pd.read_json(data, orient='split', convert_dates=dates_columns)
 
-    table = html.Div(
-                dash_table.DataTable(
-                    id="payment-schedule",
-                    columns=[
-                        {"name": col, "id": col} for col in payment_schedule.columns
-                    ],
-                    data=payment_schedule.to_dict("records"),
-                ),
-                style={"margin-top": "10px", "margin-bottom": "20px"},
-            ),
-    
-    return table
+    columns = [{"name": col, "id": col} for col in payment_schedule.columns]
+    table_data = payment_schedule.to_dict("records")
+
+    return columns, table_data
 
 
 @callback(
@@ -543,11 +485,7 @@ def get_schedule_table(data):
 )
 def download_xlsx(n_clicks, formatted_bag_data, payment_schedule_data):
     if n_clicks is None:
-        # The callback is not triggered by a button click, return None.
         return None
-
-    #json.loads(formatted_bag_data)
-    #json.loads(payment_schedule_data)
 
     dates_columns = ["Дата погашеня", "Дата"]
 
