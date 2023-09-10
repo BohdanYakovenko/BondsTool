@@ -120,7 +120,7 @@ app.layout = html.Div(
                 children=html.Div(["Перетягніть або ", html.A("Виберіть файли")]),
                 style={
                     "width": "95%",
-                    "height": "40px",  # You can adjust the height as needed
+                    "height": "40px",
                     "lineHeight": "40px",
                     "borderWidth": "1px",
                     "borderStyle": "dashed",
@@ -264,8 +264,7 @@ def parse_contents(contents, filename):
         )
 def get_bag(n_clicks):
 
-    bag = read_bag_info()
-    bag = merge_bonds_info(bag, bonds)
+    bag = pd.DataFrame()
 
     return bag.to_json(date_format='iso', orient='split')
 
@@ -281,6 +280,9 @@ def get_bag_derivatives(data):
     dates_columns = ["pay_date", "month_end"]
     bag = pd.read_json(data, orient='split', convert_dates=dates_columns)
 
+    if bag.empty:
+        raise PreventUpdate
+    
     payment_schedule = get_payment_schedule(bag)
 
     formatted_bag = format_bag(bag)
@@ -298,7 +300,8 @@ def get_bag_derivatives(data):
 @callback(
     [Output("intermediate-recommended-bonds", 'data'),
      Output("intermediate-base-fig", 'data')],
-    Input('intermediate-monthly-bag', 'data')
+    Input('intermediate-monthly-bag', 'data'),
+    prevent_initial_call=True
     )
 def get_monthly_bag_derivatives(data):
 
@@ -347,7 +350,8 @@ def update_data_and_objects(contents, filename):
 
 @callback(
     Output("sliders", 'children'),
-    Input('intermediate-recommended-bonds', 'data')
+    Input('intermediate-recommended-bonds', 'data'),
+    prevent_initial_call=True
     )
 def get_sliders(data):
 
@@ -446,7 +450,8 @@ def toggle_dropdown(n_clicks):
 @callback([Output("bag-table", "columns"),
         Output("bag-table", "data"),
         Output("bag-table", "style_data_conditional")],
-        [Input("intermediate-formatted-bag", "data")]
+        [Input("intermediate-formatted-bag", "data")],
+        prevent_initial_call=True
         )
 def get_bag_table(data):
 
@@ -462,7 +467,8 @@ def get_bag_table(data):
 
 @callback([Output("payment-schedule", "columns"),
         Output("payment-schedule", "data")],
-        [Input("intermediate-payment-schedule", "data")]
+        [Input("intermediate-payment-schedule", "data")],
+        prevent_initial_call=True
         )
 def get_schedule_table(data):
 
