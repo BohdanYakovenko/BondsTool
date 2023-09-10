@@ -25,7 +25,8 @@ from bondstool.data.bag import (
     format_bag,
     get_payment_schedule,
     merge_bonds_info,
-    read_bag_info,
+    verify_excel_file,
+
 )
 from bondstool.data.bonds import (
     add_exchange_rates,
@@ -334,7 +335,7 @@ def update_data_and_objects(contents, filename):
     padding = '=' * (4 - (len(data) % 4))
     decoded_data = base64.b64decode(data + padding)
 
-    bag = pd.read_excel(io.BytesIO(decoded_data))
+    bag = verify_excel_file(decoded_data)
     bag = pd.DataFrame(bag)
     map_headings = {
         "Кілть в портфелі": "quantity",

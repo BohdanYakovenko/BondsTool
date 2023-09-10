@@ -1,12 +1,13 @@
 import numpy as np
 import pandas as pd
+import io
 from bondstool.utils import MAP_HEADINGS, split_dataframe
 
 OVDP_BAG_PATH = "data/ovdp_input_data.xlsx"
 
 
-def verify_excel_file(file_path):
-    df = pd.read_excel(file_path)
+def verify_excel_file(decoded_data):
+    df = pd.read_excel(io.BytesIO(decoded_data))
 
     expected_columns = [
         "ISIN",
