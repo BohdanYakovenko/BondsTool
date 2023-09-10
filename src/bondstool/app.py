@@ -117,7 +117,7 @@ app.layout = html.Div(
             ),
             dcc.Upload(
                 id="upload-data",
-                children=html.Div(["Перетягніть або ", html.A("Виберіть файли")]),
+                children=html.Div(["Перетягніть або ", html.A("Виберіть файл")]),
                 style={
                     "width": "95%",
                     "height": "40px",
@@ -398,45 +398,48 @@ def update_search_output(input_value, selected_option, data):
 
  if input_value is not None or selected_option is not None:
 
-        dates_columns = ["maturity_date", "issue_date", "pay_date", "month_end"]
-        recommended_bonds = pd.read_json(data, orient='split', convert_dates=dates_columns)
+    if data is None:
+        raise PreventUpdate
 
-        if selected_option == "Рекомендовані облігації":
-            df = recommended_bonds
-        elif input_value or selected_option:
-            search_value = input_value or selected_option
-            df = bonds.loc[bonds["ISIN"] == search_value]
-        else:
-            return None
+    dates_columns = ["maturity_date", "issue_date", "pay_date", "month_end"]
+    recommended_bonds = pd.read_json(data, orient='split', convert_dates=dates_columns)
 
-        df = df.drop(
-            columns=[
-                "pay_date",
-                "pay_val",
-                "month_end",
-                "emit_okpo",
-                "cpcode_cfi",
-                "sum_pay_val",
-                "cptype",
-                "exchange_rate",
-            ]
-        )
-        df = df.drop_duplicates()
-        df["issue_date"] = pd.to_datetime(df["issue_date"]).dt.strftime("%d-%m-%Y")
-        df["maturity_date"] = df["maturity_date"].dt.strftime("%d-%m-%Y")
-        df["profitability"] = df["profitability"].round(2)
-        df = df.rename(columns=MAP_HEADINGS)
+    if selected_option == "Рекомендовані облігації":
+        df = recommended_bonds
+    elif input_value or selected_option:
+        search_value = input_value or selected_option
+        df = bonds.loc[bonds["ISIN"] == search_value]
+    else:
+        return None
 
-        table_data = df.to_dict("records")
-        table_columns = [{"name": col, "id": col} for col in df.columns]
+    df = df.drop(
+        columns=[
+            "pay_date",
+            "pay_val",
+            "month_end",
+            "emit_okpo",
+            "cpcode_cfi",
+            "sum_pay_val",
+            "cptype",
+            "exchange_rate",
+        ]
+    )
+    df = df.drop_duplicates()
+    df["issue_date"] = pd.to_datetime(df["issue_date"]).dt.strftime("%d-%m-%Y")
+    df["maturity_date"] = df["maturity_date"].dt.strftime("%d-%m-%Y")
+    df["profitability"] = df["profitability"].round(2)
+    df = df.rename(columns=MAP_HEADINGS)
 
-        table = dash_table.DataTable(
-            id="combined-table",
-            columns=table_columns,
-            data=table_data,
-        )
+    table_data = df.to_dict("records")
+    table_columns = [{"name": col, "id": col} for col in df.columns]
 
-        return table
+    table = dash_table.DataTable(
+        id="combined-table",
+        columns=table_columns,
+        data=table_data,
+    )
+
+    return table
 
 
 
@@ -491,6 +494,9 @@ def get_schedule_table(data):
 def download_xlsx(n_clicks, formatted_bag_data, payment_schedule_data):
     if n_clicks is None:
         return None
+    
+    if formatted_bag_data is None or payment_schedule_data is None:
+        raise PreventUpdate
 
     dates_columns = ["Дата погашеня", "Дата"]
 
