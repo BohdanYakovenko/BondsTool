@@ -5,6 +5,7 @@ import pandas as pd
 from bondstool.utils import MAP_HEADINGS, split_dataframe
 
 OVDP_BAG_PATH = "data/ovdp_input_data.xlsx"
+EXAMPLE_BAG_PATH = "assets/example_bag.xlsx"
 
 
 def verify_excel_file(decoded_data):
@@ -44,9 +45,9 @@ def verify_excel_file(decoded_data):
     return df
 
 
-def read_bag_info():
+def read_example_bag():
 
-    bag = verify_excel_file(OVDP_BAG_PATH)
+    bag = pd.read_excel(EXAMPLE_BAG_PATH)
 
     map_headings = {
         "Кілть в портфелі": "quantity",

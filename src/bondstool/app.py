@@ -23,6 +23,7 @@ from bondstool.data.bag import (
     format_bag,
     get_payment_schedule,
     merge_bonds_info,
+    read_example_bag,
     verify_excel_file,
 )
 from bondstool.data.bonds import (
@@ -140,7 +141,8 @@ app.layout = html.Div(
     Input("dummy-trigger", "n_clicks"),
 )
 def get_bag(n_clicks):
-    bag = pd.DataFrame()
+    bag = read_example_bag()
+    bag = merge_bonds_info(bag, BONDS)
     return bag.to_json(date_format="iso", orient="split")
 
 
