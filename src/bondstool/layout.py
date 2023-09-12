@@ -1,7 +1,7 @@
 from bondstool.utils import IMAGE_PATH, get_image_element
 from dash import dash_table, dcc, html
 
-TITLE = html.Div(
+TITLE_LAYOUT = html.Div(
     [
         html.Div(
             get_image_element(IMAGE_PATH),
@@ -30,7 +30,7 @@ TITLE = html.Div(
 )
 
 
-UPLOAD = dcc.Upload(
+UPLOAD_BUTTON_LAYOUT = dcc.Upload(
     id="upload-data",
     children=html.Div(["Перетягніть або ", html.A("Виберіть файл")]),
     style={
@@ -46,7 +46,7 @@ UPLOAD = dcc.Upload(
     },
 )
 
-RECOMMENDED_LABEL = html.Div(
+RECOMMENDED_LABEL_LAYOUT = html.Div(
     [
         html.P(
             "*Облігації червоним кольором рекомендовані",
@@ -60,7 +60,7 @@ RECOMMENDED_LABEL = html.Div(
     style={"display": "flex", "justify-content": "flex-end"},
 )
 
-BAG_TABLE = html.Div(
+BAG_TABLE_LAYOUT = html.Div(
     [
         html.H3(
             "Портфель облігацій",
@@ -74,7 +74,7 @@ BAG_TABLE = html.Div(
     ]
 )
 
-SCHEDULE_TABLE = html.Div(
+SCHEDULE_TABLE_LAYOUT = html.Div(
     [
         html.H4(
             "Графік платежів",
@@ -93,7 +93,7 @@ SCHEDULE_TABLE = html.Div(
     ]
 )
 
-DOWNLOAD = html.Div(
+DOWNLOAD_BUTTON_LAYOUT = html.Div(
     html.Button(
         "Завантажити ексель",
         id="btn_xlsx",

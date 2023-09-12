@@ -33,35 +33,36 @@ from bondstool.data.bonds import (
     normalize_payments,
 )
 from bondstool.layout import (
-    BAG_TABLE,
+    BAG_TABLE_LAYOUT,
     DDC_STORE,
-    DOWNLOAD,
-    RECOMMENDED_LABEL,
-    SCHEDULE_TABLE,
-    TITLE,
-    UPLOAD,
+    DOWNLOAD_BUTTON_LAYOUT,
+    RECOMMENDED_LABEL_LAYOUT,
+    SCHEDULE_TABLE_LAYOUT,
+    TITLE_LAYOUT,
+    UPLOAD_BUTTON_LAYOUT,
 )
 from bondstool.utils import (
     MAP_HEADINGS,
     get_style_by_condition,
     get_xlsx,
+    read_json,
 )
 from dash import ALL, Dash, Input, Output, State, callback, dash_table, dcc, html
 from dash.exceptions import PreventUpdate
 
-exchange_rates = get_exchange_rates()
+EXCHANGE_RATE = get_exchange_rates()
 
 raw_bonds = get_bonds_info()
-raw_bonds = add_exchange_rates(raw_bonds, exchange_rates)
+RAW_BONDS = add_exchange_rates(raw_bonds, EXCHANGE_RATE)
 
-bonds = normalize_payments(raw_bonds)
-bonds = calculate_profitability(bonds)
+bonds = normalize_payments(RAW_BONDS)
+BONDS = calculate_profitability(bonds)
 
-doc_url, auc_date = get_doc_url_date()
+DOC_URL, AUC_DATE = get_doc_url_date()
 
-isin_df = parse_xml_isins(get_auction_xml(doc_url))
+ISIN_DF = parse_xml_isins(get_auction_xml(DOC_URL))
 
-trading_bonds = filter_trading_bonds(isin_df, bonds)
+TRADING_BONDS = filter_trading_bonds(ISIN_DF, bonds)
 
 
 app = Dash(__name__)
@@ -93,13 +94,13 @@ def create_slider(id, index, recommended_bonds):
 app.layout = html.Div(
     [
         html.Div(id="dummy-trigger", style={"display": "none"}),
-        TITLE,
-        UPLOAD,
+        TITLE_LAYOUT,
+        UPLOAD_BUTTON_LAYOUT,
         dcc.Graph(id="graph-with-slider"),
         html.Div(
             [
                 html.H2(
-                    f"Облігації доступні на аукціоні: {auc_date}",
+                    f"Облігації доступні на аукціоні: {AUC_DATE}",
                     style={
                         "text-align": "center",
                         "margin": "1px 0",
@@ -109,7 +110,7 @@ app.layout = html.Div(
             ],
             style={"display": "flex", "justify-content": "center"},
         ),
-        RECOMMENDED_LABEL,
+        RECOMMENDED_LABEL_LAYOUT,
         html.Div(id="sliders"),
         dcc.Input(id="search-input", type="text", placeholder="Введіть ISIN"),
         html.Button("▼", id="dropdown-button"),
@@ -121,14 +122,14 @@ app.layout = html.Div(
                     "value": "Рекомендовані облігації",
                 }
             ]
-            + [{"label": isin, "value": isin} for isin in raw_bonds["ISIN"]],
+            + [{"label": isin, "value": isin} for isin in RAW_BONDS["ISIN"]],
             placeholder="Виберіть ISIN",
             style={"display": "none"},
         ),
         html.Div(id="search-output"),
-        BAG_TABLE,
-        SCHEDULE_TABLE,
-        DOWNLOAD,
+        BAG_TABLE_LAYOUT,
+        SCHEDULE_TABLE_LAYOUT,
+        DOWNLOAD_BUTTON_LAYOUT,
         DDC_STORE,
     ]
 )
@@ -139,9 +140,7 @@ app.layout = html.Div(
     Input("dummy-trigger", "n_clicks"),
 )
 def get_bag(n_clicks):
-
     bag = pd.DataFrame()
-
     return bag.to_json(date_format="iso", orient="split")
 
 
@@ -156,7 +155,7 @@ def get_bag(n_clicks):
 def get_bag_derivatives(data):
 
     dates_columns = ["pay_date", "month_end"]
-    bag = pd.read_json(data, orient="split", convert_dates=dates_columns)
+    bag = read_json(data, dates_columns)
 
     if bag.empty:
         raise PreventUpdate
@@ -187,11 +186,10 @@ def get_bag_derivatives(data):
 )
 def get_monthly_bag_derivatives(data):
 
-    dates_columns = ["month_end"]
-    monthly_bag = pd.read_json(data, orient="split", convert_dates=dates_columns)
-    monthly_bag.set_index("month_end", inplace=True)
+    dates_columns = index_column = ["month_end"]
+    monthly_bag = read_json(data, dates_columns, index_column)
 
-    recommended_bonds = get_recommended_bonds(bonds, monthly_bag)
+    recommended_bonds = get_recommended_bonds(BONDS, monthly_bag)
 
     base_fig = make_base_monthly_payments_fig(monthly_bag)
 
@@ -226,7 +224,7 @@ def update_data_and_objects(contents, filename):
     }
 
     bag = bag.rename(columns=map_headings)
-    bag = merge_bonds_info(bag, bonds)
+    bag = merge_bonds_info(bag, BONDS)
 
     return bag.to_json(date_format="iso", orient="split")
 
@@ -238,11 +236,12 @@ def update_data_and_objects(contents, filename):
 )
 def get_sliders(data):
 
-    recommended_bonds = pd.read_json(data, orient="split", convert_dates=True)
+    dates_columns = ["maturity_date", "issue_date", "pay_date", "month_end"]
+    recommended_bonds = read_json(data, dates_columns)
 
     sliders = [
         create_slider(isin, index, recommended_bonds)
-        for index, isin in enumerate(isin_df["ISIN"])
+        for index, isin in enumerate(ISIN_DF["ISIN"])
     ]
 
     return sliders
@@ -259,16 +258,13 @@ def get_sliders(data):
 )
 def update_figure(base_fig_data, monthly_bag_data, amounts):
 
-    dates_columns = ["month_end"]
+    dates_columns = index_column = ["month_end"]
 
     base_fig = pio.from_json(base_fig_data)
-    monthly_bag = pd.read_json(
-        monthly_bag_data, orient="split", convert_dates=dates_columns
-    )
-    monthly_bag.set_index("month_end", inplace=True)
+    monthly_bag = read_json(monthly_bag_data, dates_columns, index_column)
 
     potential_payments = calc_potential_payments(
-        trading_bonds, amounts, monthly_bag, isin_df
+        TRADING_BONDS, amounts, monthly_bag, ISIN_DF
     )
 
     fig = plot_potential_payments(base_fig, potential_payments, monthly_bag)
@@ -293,16 +289,16 @@ def update_search_output(input_value, selected_option, data):
         if data is None:
             raise PreventUpdate
 
-        dates_columns = ["maturity_date", "issue_date", "pay_date", "month_end"]
-        recommended_bonds = pd.read_json(
-            data, orient="split", convert_dates=dates_columns
-        )
-
         if selected_option == "Рекомендовані облігації":
+
+            dates_columns = ["maturity_date", "issue_date", "pay_date", "month_end"]
+
+            recommended_bonds = read_json(data, dates_columns)
             df = recommended_bonds
+
         elif input_value or selected_option:
             search_value = input_value or selected_option
-            df = bonds.loc[bonds["ISIN"] == search_value]
+            df = BONDS.loc[BONDS["ISIN"] == search_value]
         else:
             return None
 
@@ -355,7 +351,7 @@ def toggle_dropdown(n_clicks):
 def get_bag_table(data):
 
     dates_columns = ["Дата погашеня"]
-    formatted_bag = pd.read_json(data, orient="split", convert_dates=dates_columns)
+    formatted_bag = read_json(data, dates_columns)
 
     columns = [{"name": col, "id": col} for col in formatted_bag.columns]
     table_data = formatted_bag.to_dict("records")
@@ -372,7 +368,7 @@ def get_bag_table(data):
 def get_schedule_table(data):
 
     dates_columns = ["Дата"]
-    payment_schedule = pd.read_json(data, orient="split", convert_dates=dates_columns)
+    payment_schedule = read_json(data, dates_columns)
 
     columns = [{"name": col, "id": col} for col in payment_schedule.columns]
     table_data = payment_schedule.to_dict("records")
@@ -398,12 +394,8 @@ def download_xlsx(n_clicks, formatted_bag_data, payment_schedule_data):
 
     dates_columns = ["Дата погашеня", "Дата"]
 
-    formatted_bag = pd.read_json(
-        formatted_bag_data, orient="split", convert_dates=dates_columns
-    )
-    payment_schedule = pd.read_json(
-        payment_schedule_data, orient="split", convert_dates=dates_columns
-    )
+    formatted_bag = read_json(formatted_bag_data, dates_columns)
+    payment_schedule = read_json(payment_schedule_data, dates_columns)
 
     xlsx_bytes = get_xlsx(formatted_bag, payment_schedule)
 
