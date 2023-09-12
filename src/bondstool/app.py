@@ -202,7 +202,13 @@ def get_monthly_bag_derivatives(data):
 
 
 @app.callback(
-    Output("intermediate-bag", "data", allow_duplicate=True),
+    [
+        Output("intermediate-bag", "data", allow_duplicate=True),
+        Output("warning-label1", "style"),
+        Output("warning-label2", "style"),
+        Output("bag-header", "children"),
+        Output("schedule-header", "children"),
+    ],
     [Input("upload-data", "contents")],
     [State("upload-data", "filename")],
     prevent_initial_call=True,
@@ -228,7 +234,16 @@ def update_data_and_objects(contents, filename):
     bag = bag.rename(columns=map_headings)
     bag = merge_bonds_info(bag, BONDS)
 
-    return bag.to_json(date_format="iso", orient="split")
+    bag_header = "Портфель облігацій"
+    schedule_header = "Графік платежів"
+
+    return (
+        bag.to_json(date_format="iso", orient="split"),
+        {"display": "none"},
+        {"display": "none"},
+        bag_header,
+        schedule_header,
+    )
 
 
 @callback(

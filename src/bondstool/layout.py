@@ -30,20 +30,44 @@ TITLE_LAYOUT = html.Div(
 )
 
 
-UPLOAD_BUTTON_LAYOUT = dcc.Upload(
-    id="upload-data",
-    children=html.Div(["Перетягніть або ", html.A("Виберіть файл")]),
-    style={
-        "width": "95%",
-        "height": "40px",
-        "lineHeight": "40px",
-        "borderWidth": "1px",
-        "borderStyle": "dashed",
-        "borderRadius": "5px",
-        "textAlign": "center",
-        "margin": "10px auto",
-        "cursor": "pointer",
-    },
+UPLOAD_BUTTON_LAYOUT = html.Div(
+    [
+        dcc.Upload(
+            id="upload-data",
+            children=html.Div(["Перетягніть або ", html.A("Виберіть файл")]),
+            style={
+                "width": "95%",
+                "height": "40px",
+                "lineHeight": "40px",
+                "borderWidth": "1px",
+                "borderStyle": "dashed",
+                "borderRadius": "5px",
+                "textAlign": "center",
+                "margin": "10px auto",
+                "cursor": "pointer",
+            },
+        ),
+        html.H3(
+            "Дані відображенні нижче згенеровані автоматично для ПРИКЛАДУ",
+            style={
+                "text-align": "center",
+                "margin-top": "20px",
+                "font-size": "20px",
+                "color": "red",
+            },
+            id="warning-label1",
+        ),
+        html.H4(
+            "Завантажте свій файл для аналізу даних",
+            style={
+                "text-align": "center",
+                "margin-top": "20px",
+                "font-size": "20px",
+                "color": "red",
+            },
+            id="warning-label2",
+        ),
+    ]
 )
 
 RECOMMENDED_LABEL_LAYOUT = html.Div(
@@ -63,12 +87,13 @@ RECOMMENDED_LABEL_LAYOUT = html.Div(
 BAG_TABLE_LAYOUT = html.Div(
     [
         html.H3(
-            "Портфель облігацій",
+            children="Портфель облігацій - ДЛЯ ПРИКЛАДУ",
             style={
                 "text-align": "center",
                 "margin-top": "20px",
                 "font-size": "20px",
             },
+            id="bag-header",
         ),
         dash_table.DataTable(id="bag-table"),
     ]
@@ -77,12 +102,13 @@ BAG_TABLE_LAYOUT = html.Div(
 SCHEDULE_TABLE_LAYOUT = html.Div(
     [
         html.H4(
-            "Графік платежів",
+            children="Графік платежів - ДЛЯ ПРИКЛАДУ",
             style={
                 "text-align": "center",
                 "margin-top": "20px",
                 "font-size": "20px",
             },
+            id="schedule-header",
         ),
         html.Div(
             dash_table.DataTable(
