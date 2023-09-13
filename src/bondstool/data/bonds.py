@@ -99,7 +99,7 @@ def get_recommended_bonds(bonds: pd.DataFrame, monthly_bag: pd.DataFrame):
         bonds_last_payment["month_end"] > last_month_end
     ].copy()
 
-    if not extra_bonds.empty:  # Check if extra_bonds is not empty
+    if not extra_bonds.empty:
         extra_bonds.loc[:, "total_pay_val"] = 0
 
         final_df = pd.concat([filtered_df, extra_bonds], ignore_index=True)

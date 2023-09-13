@@ -383,8 +383,7 @@ def get_bag_table(data):
 )
 def get_schedule_table(data):
 
-    dates_columns = ["Дата"]
-    payment_schedule = read_json(data, dates_columns)
+    payment_schedule = read_json(data)
 
     columns = [{"name": col, "id": col} for col in payment_schedule.columns]
     table_data = payment_schedule.to_dict("records")
@@ -408,7 +407,7 @@ def download_xlsx(n_clicks, formatted_bag_data, payment_schedule_data):
     if formatted_bag_data is None or payment_schedule_data is None:
         raise PreventUpdate
 
-    dates_columns = ["Дата погашеня", "Дата"]
+    dates_columns = ["Дата погашеня"]
 
     formatted_bag = read_json(formatted_bag_data, dates_columns)
     payment_schedule = read_json(payment_schedule_data, dates_columns)
