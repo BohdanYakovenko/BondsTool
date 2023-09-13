@@ -1,5 +1,30 @@
+import numpy as np
 from bondstool.utils import IMAGE_PATH, get_image_element
 from dash import dash_table, dcc, html
+
+SLIDER_STEPS = np.arange(0, 5000, 200)
+
+
+def create_slider(id, index, recommended_bonds):
+    if id in recommended_bonds["ISIN"].values:
+        label_style = {"color": "red"}
+    else:
+        label_style = {}
+
+    return html.Div(
+        [
+            html.Label(id, htmlFor=id, style=label_style),
+            dcc.Slider(
+                SLIDER_STEPS.min(),
+                SLIDER_STEPS.max(),
+                step=None,
+                value=SLIDER_STEPS.min(),
+                marks={str(val): str(val) for val in SLIDER_STEPS},
+                id={"type": "isin_slider", "index": index},
+            ),
+        ]
+    )
+
 
 TITLE_LAYOUT = html.Div(
     [
@@ -70,6 +95,23 @@ UPLOAD_BUTTON_LAYOUT = html.Div(
     ]
 )
 
+
+AUCTION_DATE_LABEL_LAYOUT = html.Div(
+    [
+        html.H2(
+            children=[],
+            style={
+                "text-align": "center",
+                "margin": "1px 0",
+                "font-size": "25px",
+            },
+            id="auction-label",
+        ),
+    ],
+    style={"display": "flex", "justify-content": "center"},
+)
+
+
 RECOMMENDED_LABEL_LAYOUT = html.Div(
     [
         html.P(
@@ -83,6 +125,15 @@ RECOMMENDED_LABEL_LAYOUT = html.Div(
     ],
     style={"display": "flex", "justify-content": "flex-end"},
 )
+
+
+DROPDOWN_LIST_LAYOUT = dcc.Dropdown(
+    id="dropdown",
+    options=[],
+    placeholder="Виберіть ISIN",
+    style={"display": "none"},
+)
+
 
 BAG_TABLE_LAYOUT = html.Div(
     [
@@ -142,6 +193,11 @@ DDC_STORE = html.Div(
     [
         dcc.Download(id="download-dataframe-xlsx"),
         dcc.Store(id="intermediate-bag"),
+        dcc.Store(id="intermediate-raw-bonds"),
+        dcc.Store(id="intermediate-bonds"),
+        dcc.Store(id="intermediate-auc-date"),
+        dcc.Store(id="intermediate-isin-df"),
+        dcc.Store(id="intermediate-trading-bonds"),
         dcc.Store(id="intermediate-payment-schedule"),
         dcc.Store(id="intermediate-formatted-bag"),
         dcc.Store(id="intermediate-monthly-bag"),
