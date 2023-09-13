@@ -4,7 +4,6 @@ import numpy as np
 import pandas as pd
 from bondstool.utils import MAP_HEADINGS, split_dataframe
 
-OVDP_BAG_PATH = "data/ovdp_input_data.xlsx"
 EXAMPLE_BAG_PATH = "assets/example_bag.xlsx"
 
 

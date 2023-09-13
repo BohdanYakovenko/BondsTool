@@ -53,8 +53,8 @@ from dash.exceptions import PreventUpdate
 
 EXCHANGE_RATE = get_exchange_rates()
 
-raw_bonds = get_bonds_info()
-RAW_BONDS = add_exchange_rates(raw_bonds, EXCHANGE_RATE)
+RAW_BONDS = get_bonds_info()
+RAW_BONDS = add_exchange_rates(RAW_BONDS, EXCHANGE_RATE)
 
 bonds = normalize_payments(RAW_BONDS)
 BONDS = calculate_profitability(bonds)
@@ -310,8 +310,7 @@ def update_search_output(input_value, selected_option, data):
 
             dates_columns = ["maturity_date", "issue_date", "pay_date", "month_end"]
 
-            recommended_bonds = read_json(data, dates_columns)
-            df = recommended_bonds
+            df = read_json(data, dates_columns)
 
         elif input_value or selected_option:
             search_value = input_value or selected_option

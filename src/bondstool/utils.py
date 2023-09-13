@@ -123,10 +123,8 @@ def get_image_element(image_path):
 
 def read_json(data, date_columns=None, index_col=None, orient="split"):
 
-    if date_columns is None:
-        df = pd.read_json(data, orient=orient)
-    else:
-        df = pd.read_json(data, orient=orient, convert_dates=date_columns)
+    convert_dates = True if date_columns is None else date_columns
+    df = pd.read_json(data, orient=orient, convert_dates=convert_dates)
 
     if index_col is not None:
         df.set_index(index_col, inplace=True)
