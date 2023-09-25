@@ -9,6 +9,11 @@ from dash import html
 
 IMAGE_PATH = "assets/logo.png"
 
+JSON_STORE_KWARGS = {
+    "date_format": "iso",
+    "orient": "split"
+}
+
 MAP_HEADINGS = {
     "nominal": "Номінал",
     "auk_proc": "Процентна ставка",

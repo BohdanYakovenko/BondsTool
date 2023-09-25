@@ -46,6 +46,7 @@ from bondstool.layout import (
 )
 from bondstool.utils import (
     MAP_HEADINGS,
+    JSON_STORE_KWARGS,
     get_style_by_condition,
     get_xlsx,
     read_json,
@@ -109,12 +110,12 @@ def get_bag(n_clicks):
     bag = merge_bonds_info(bag, bonds)
 
     return (
-        bag.to_json(date_format="iso", orient="split"),
-        raw_bonds.to_json(date_format="iso", orient="split"),
-        bonds.to_json(date_format="iso", orient="split"),
+        bag.to_json(**JSON_STORE_KWARGS),
+        raw_bonds.to_json(**JSON_STORE_KWARGS),
+        bonds.to_json(**JSON_STORE_KWARGS),
         auc_date,
-        isin_df.to_json(date_format="iso", orient="split"),
-        trading_bonds.to_json(date_format="iso", orient="split"),
+        isin_df.to_json(**JSON_STORE_KWARGS),
+        trading_bonds.to_json(**JSON_STORE_KWARGS),
     )
 
 
@@ -144,9 +145,9 @@ def get_bag_derivatives(data):
     monthly_bag.reset_index(inplace=True)
 
     return (
-        payment_schedule.to_json(date_format="iso", orient="split"),
-        formatted_bag.to_json(date_format="iso", orient="split"),
-        monthly_bag.to_json(date_format="iso", orient="split"),
+        payment_schedule.to_json(**JSON_STORE_KWARGS),
+        formatted_bag.to_json(**JSON_STORE_KWARGS),
+        monthly_bag.to_json(**JSON_STORE_KWARGS),
     )
 
 
@@ -171,7 +172,7 @@ def get_monthly_bag_derivatives(monthly_bag_data, bonds_data):
     base_fig = make_base_monthly_payments_fig(monthly_bag)
 
     return (
-        recommended_bonds.to_json(date_format="iso", orient="split"),
+        recommended_bonds.to_json(**JSON_STORE_KWARGS),
         base_fig.to_json(),
     )
 
@@ -220,7 +221,7 @@ def update_data_and_objects(contents, bonds_data, filename):
     schedule_header = "Графік платежів"
 
     return (
-        bag.to_json(date_format="iso", orient="split"),
+        bag.to_json(**JSON_STORE_KWARGS),
         {"display": "none"},
         {"display": "none"},
         bag_header,
