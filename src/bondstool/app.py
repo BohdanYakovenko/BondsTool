@@ -45,8 +45,8 @@ from bondstool.layout import (
     create_slider,
 )
 from bondstool.utils import (
-    MAP_HEADINGS,
     JSON_STORE_KWARGS,
+    MAP_HEADINGS,
     get_style_by_condition,
     get_xlsx,
     read_json,
