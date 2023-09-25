@@ -160,7 +160,7 @@ def get_bag_derivatives(data):
 )
 def get_monthly_bag_derivatives(monthly_bag_data, bonds_data):
 
-    dates_columns = ["month_end", "maturity_date", "pay_date", "sum_pay_val"]
+    dates_columns = ["month_end", "maturity_date", "pay_date"]
     index_column = ["month_end"]
 
     monthly_bag = read_json(monthly_bag_data, dates_columns, index_column)
@@ -197,7 +197,6 @@ def update_data_and_objects(contents, bonds_data, filename):
         "month_end",
         "maturity_date",
         "pay_date",
-        "sum_pay_val",
     ]
     bonds = read_json(bonds_data, dates_columns)
 
@@ -290,7 +289,7 @@ def update_figure(
     base_fig_data, monthly_bag_data, trading_bonds_data, isin_df_data, amounts
 ):
 
-    dates_columns = ["month_end", "maturity_date", "pay_date", "sum_pay_val"]
+    dates_columns = ["month_end", "maturity_date", "pay_date"]
     index_column = ["month_end"]
 
     base_fig = pio.from_json(base_fig_data)
@@ -330,7 +329,6 @@ def update_search_output(input_value, selected_option, recommended_data, bonds_d
             "issue_date",
             "pay_date",
             "month_end",
-            "sum_pay_val",
         ]
 
         if selected_option == "Рекомендовані облігації":
