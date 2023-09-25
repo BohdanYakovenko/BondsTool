@@ -57,5 +57,4 @@ def parse_xml_isins(tree: Element):
 
 
 def filter_trading_bonds(isin_df: pd.DataFrame, bonds: pd.DataFrame):
-
     return isin_df.merge(bonds, how="left")

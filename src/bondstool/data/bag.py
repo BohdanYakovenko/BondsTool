@@ -139,7 +139,7 @@ def get_sums_row(bag: pd.DataFrame):
     column_sums = bag[assigned_columns].sum()
 
     sum_row = pd.DataFrame([column_sums], columns=assigned_columns)
-    sum_row.at[0, "ISIN"] = "Разом"
+    sum_row["ISIN"] = "Разом"
     sum_row.at[0, "profitability"] = (
         sum_row.at[0, "profit after tax"] / sum_row.at[0, "expenditure"] * 100
     )
@@ -167,9 +167,9 @@ def format_bag(bag: pd.DataFrame):
 
     sum_row = get_sums_row(actual)
 
-    actual.loc[actual.shape[0]] = None
+    actual.loc[actual.shape[0]] = ""
     combined_actual = pd.concat([actual, sum_row], ignore_index=True)
-    combined_actual.loc[combined_actual.shape[0]] = None
+    combined_actual.loc[combined_actual.shape[0]] = ""
 
     combined_actual["pay_date"] = pd.to_datetime(
         combined_actual["pay_date"]

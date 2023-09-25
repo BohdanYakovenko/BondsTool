@@ -2,6 +2,7 @@ import base64
 import io
 import os
 from datetime import datetime
+from io import StringIO
 
 import pandas as pd
 from dash import html
@@ -41,7 +42,6 @@ def round_to_month_end(series: pd.Series):
 
 
 def truncate_past_dates(df: pd.DataFrame, date=None, date_col="pay_date"):
-
     if not date:
         date = datetime.today()
 
@@ -117,11 +117,12 @@ def get_image_element(image_path):
         )
 
     else:
-
         return None
 
 
 def read_json(data, date_columns=None, index_col=None, orient="split"):
+    if isinstance(data, str):
+        data = StringIO(data)
 
     convert_dates = True if date_columns is None else date_columns
     df = pd.read_json(data, orient=orient, convert_dates=convert_dates)

@@ -3,7 +3,6 @@ from bondstool.utils import round_to_month_end
 
 
 def payments_by_month(df: pd.DataFrame, pay_col="total_pay_val"):
-
     return df.groupby(["month_end"])[[pay_col]].sum()
 
 

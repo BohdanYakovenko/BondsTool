@@ -1,3 +1,6 @@
+import io
+from io import StringIO
+
 import pandas as pd
 import requests
 from bondstool.utils import round_to_month_end, truncate_past_dates
@@ -7,9 +10,12 @@ CURRENCY_URL = "https://bank.gov.ua/NBUStatService/v1/statdirectory/exchange?jso
 
 
 def get_bonds_info():
+    json_data = requests.get(url=BONDS_URL).text
 
-    json = requests.get(url=BONDS_URL).text
-    bonds = pd.read_json(json)
+    json_io = StringIO(json_data)
+
+    bonds = pd.read_json(json_io, orient="records")
+
     bonds = bonds[bonds["cptype"] != "OZDP"]
 
     map_headings = {
@@ -27,9 +33,11 @@ def get_bonds_info():
 
 
 def get_exchange_rates():
+    json_data = requests.get(url=CURRENCY_URL).text
 
-    json = requests.get(url=CURRENCY_URL).text
-    currencies = pd.read_json(json)
+    json_stream = io.StringIO(json_data)
+
+    currencies = pd.read_json(json_stream)
 
     usd_and_eur = currencies[currencies["r030"].isin([840, 978])]
 

@@ -4,7 +4,6 @@ import plotly.graph_objects as go
 
 
 def make_base_monthly_payments_fig(monthly_bag: pd.DataFrame):
-
     fig = px.line(monthly_bag)
 
     fig.data[0]["name"] = "Виплати за портфелем"
