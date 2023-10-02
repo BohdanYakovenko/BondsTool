@@ -3,7 +3,6 @@ from bondstool.utils import round_to_month_end
 
 
 def payments_by_month(df: pd.DataFrame, pay_col="total_pay_val"):
-
     return df.groupby(["month_end"])[[pay_col]].sum()
 
 
@@ -20,7 +19,7 @@ def fill_missing_months(df: pd.DataFrame):
 
 def calc_potential_payments(
     trading_bonds: pd.DataFrame,
-    amounts: tuple,
+    amounts: list,
     bag_payments: pd.DataFrame,
     isin_df: pd.DataFrame,
 ):
@@ -36,7 +35,7 @@ def calc_potential_payments(
 
     df = pd.concat((bag_payments, potential_payments))
     df = payments_by_month(df)
-    # TODO: omit if filling is not needed
+
     df = fill_missing_months(df)
     return df
 

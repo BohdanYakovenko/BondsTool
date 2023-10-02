@@ -1,12 +1,14 @@
+import io
+
 import numpy as np
 import pandas as pd
 from bondstool.utils import MAP_HEADINGS, split_dataframe
 
-OVDP_BAG_PATH = "data/ovdp_input_data.xlsx"
+EXAMPLE_BAG_PATH = "assets/example_bag.xlsx"
 
 
-def verify_excel_file(file_path):
-    df = pd.read_excel(file_path)
+def verify_excel_file(decoded_data):
+    df = pd.read_excel(io.BytesIO(decoded_data))
 
     expected_columns = [
         "ISIN",
@@ -42,9 +44,9 @@ def verify_excel_file(file_path):
     return df
 
 
-def read_bag_info():
+def read_example_bag():
 
-    bag = verify_excel_file(OVDP_BAG_PATH)
+    bag = pd.read_excel(EXAMPLE_BAG_PATH)
 
     map_headings = {
         "Кілть в портфелі": "quantity",
@@ -137,7 +139,7 @@ def get_sums_row(bag: pd.DataFrame):
     column_sums = bag[assigned_columns].sum()
 
     sum_row = pd.DataFrame([column_sums], columns=assigned_columns)
-    sum_row.at[0, "ISIN"] = "Разом"
+    sum_row["ISIN"] = "Разом"
     sum_row.at[0, "profitability"] = (
         sum_row.at[0, "profit after tax"] / sum_row.at[0, "expenditure"] * 100
     )
@@ -165,9 +167,9 @@ def format_bag(bag: pd.DataFrame):
 
     sum_row = get_sums_row(actual)
 
-    actual.loc[actual.shape[0]] = None
+    actual.loc[actual.shape[0]] = ""
     combined_actual = pd.concat([actual, sum_row], ignore_index=True)
-    combined_actual.loc[combined_actual.shape[0]] = None
+    combined_actual.loc[combined_actual.shape[0]] = ""
 
     combined_actual["pay_date"] = pd.to_datetime(
         combined_actual["pay_date"]

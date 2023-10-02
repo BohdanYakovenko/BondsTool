@@ -1,3 +1,6 @@
+import io
+from io import StringIO
+
 import pandas as pd
 import requests
 from bondstool.utils import round_to_month_end, truncate_past_dates
@@ -7,9 +10,12 @@ CURRENCY_URL = "https://bank.gov.ua/NBUStatService/v1/statdirectory/exchange?jso
 
 
 def get_bonds_info():
+    json_data = requests.get(url=BONDS_URL).text
 
-    json = requests.get(url=BONDS_URL).text
-    bonds = pd.read_json(json)
+    json_io = StringIO(json_data)
+
+    bonds = pd.read_json(json_io, orient="records")
+
     bonds = bonds[bonds["cptype"] != "OZDP"]
 
     map_headings = {
@@ -27,9 +33,11 @@ def get_bonds_info():
 
 
 def get_exchange_rates():
+    json_data = requests.get(url=CURRENCY_URL).text
 
-    json = requests.get(url=CURRENCY_URL).text
-    currencies = pd.read_json(json)
+    json_stream = io.StringIO(json_data)
+
+    currencies = pd.read_json(json_stream)
 
     usd_and_eur = currencies[currencies["r030"].isin([840, 978])]
 
@@ -98,9 +106,14 @@ def get_recommended_bonds(bonds: pd.DataFrame, monthly_bag: pd.DataFrame):
     extra_bonds = bonds_last_payment.loc[
         bonds_last_payment["month_end"] > last_month_end
     ].copy()
-    extra_bonds.loc[:, "total_pay_val"] = 0
 
-    final_df = pd.concat([filtered_df, extra_bonds], ignore_index=True)
+    if not extra_bonds.empty:
+        extra_bonds.loc[:, "total_pay_val"] = 0
+
+        final_df = pd.concat([filtered_df, extra_bonds], ignore_index=True)
+    else:
+        final_df = filtered_df.copy()
+
     final_df.drop(["total_pay_val"], axis=1, inplace=True)
     final_df = final_df.sort_values(by="pay_date", ascending=True)
 
