@@ -56,7 +56,9 @@ def split_dataframe(df: pd.DataFrame, column="pay_date"):
     df_satisfying = df[condition]
     df_not_satisfying = df[~condition]
 
-    return df_not_satisfying, df_satisfying
+    return df_not_satisfying.reset_index(drop=True), df_satisfying.reset_index(
+        drop=True
+    )
 
 
 def get_style_by_condition(

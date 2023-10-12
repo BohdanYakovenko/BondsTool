@@ -99,7 +99,6 @@ def get_payment_schedule(bag: pd.DataFrame):
     )
 
     bag["pay_date"] = pd.to_datetime(bag["pay_date"]).dt.strftime("%d-%m-%Y")
-    bag["total_pay_val"] = bag["total_pay_val"].round(2)
 
     actual, historic = split_dataframe(bag)
 
@@ -174,19 +173,6 @@ def format_bag(bag: pd.DataFrame):
     combined_actual["pay_date"] = pd.to_datetime(
         combined_actual["pay_date"]
     ).dt.strftime("%d-%m-%Y")
-
-    columns_to_round = [
-        "expenditure",
-        "expected return",
-        "profit before tax",
-        "profit after tax",
-        "profit per bond",
-        "profitability",
-    ]
-
-    combined_actual.loc[:, columns_to_round] = combined_actual[columns_to_round].round(
-        2
-    )
 
     historic_copy = historic.copy()
 
