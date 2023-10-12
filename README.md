@@ -19,7 +19,7 @@
 
 ## Introduction
 
-The Analytic BondsTool is a web service that helps manage and analyse the trading of governmental bonds in Ukraine, based on the database of [NBU (The National Bank of Ukraine)](https://bank.gov.ua/ua/markets/ovdp) and the weekly auction announcement made by [The Ministry of Finance Of Ukraine](https://mof.gov.ua/en/ogoloshennja-ta-rezultati-aukcioniv).
+The Analytic BondsTool is a web service that helps manage and analyse the trading of governmental bonds in Ukraine, based on the database of [NBU (The National Bank of Ukraine)](https://bank.gov.ua/en/markets/ovdp) and the weekly auction announcement made by [The Ministry of Finance Of Ukraine](https://mof.gov.ua/en/ogoloshennja-ta-rezultati-aukcioniv).
 
 It allows the user to interactively compare bonds and download the analytics to Excel format afterward for further analysis.
 
@@ -84,7 +84,7 @@ To upload the company's logo to the web page, the file with the logo image shoul
 
 ## Опис
 
-Analytic BondsTool — це веб-сервіс, який допомагає керувати та аналізувати покупку державних облігацій в Україні на основі бази даних  [НБУ (Національного банку України)](https://bank.gov.ua/ua/markets/ovdp) та щотижневого аукціону, який публікує [Міністерство фінансів України](https://mof.gov.ua/en/ogoloshennja-ta-rezultati-aukcioniv).
+Analytic BondsTool — це веб-сервіс, який допомагає керувати та аналізувати покупку державних облігацій в Україні на основі бази даних  [НБУ (Національного банку України)](https://bank.gov.ua/en/markets/ovdp) та щотижневого аукціону, який публікує [Міністерство фінансів України](https://mof.gov.ua/en/ogoloshennja-ta-rezultati-aukcioniv).
 
 Це дозволяє користувачеві інтерактивно порівнювати облігації та завантажувати аналітику у формат Excel для подальшого аналізу.
 
