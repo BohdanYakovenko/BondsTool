@@ -290,6 +290,9 @@ def update_figure(
     base_fig_data, monthly_bag_data, trading_bonds_data, isin_df_data, amounts
 ):
 
+    if not amounts:
+        raise PreventUpdate
+
     dates_columns = ["month_end", "maturity_date", "pay_date"]
     index_column = ["month_end"]
 
