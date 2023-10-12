@@ -8,6 +8,7 @@
 - [Installation](#installation)
 - [Usage](#usage)
 - [Custom Logo (Optional)](#custom-logo-optional)
+- [Deployment (Optional)](#deployment-optional)
 
 ---
 [Українська]
@@ -15,7 +16,8 @@
 - [Опис](#опис)
 - [Завантаження](#завантаження)
 - [Використання](#використання)
-- [Додати лого (необов'язково)](#додати-лого-необов'язково)
+- [Додати лого (необов'язково)](#додати-лого-необовязково)
+- [Розгортання на сервері (необов'язково)](#розгортання-на-сервері-необовязково)
 
 ## Introduction
 
@@ -81,7 +83,21 @@ Use the default file as an example of the format required. It is located in [`Bo
 To upload the company's logo to the web page, the file with the logo image should be saved into the directory [`BondsTool/assets`](BondsTool/assets) on your device with the name `logo.png`.
 
 
+## Deployment (Optional)
 
+To deploy the application to the server:
+
+* On Windows
+    ```bash
+    waitress-serve --listen=*:8050 src.bondstool.app:server
+    ```
+
+* On macOS and Linux
+    ```bash
+    gunicorn src.bondstool.app:server -b :8050
+    ```
+
+---
 ## Опис
 
 Analytic BondsTool — це веб-сервіс, який допомагає керувати та аналізувати покупку державних облігацій в Україні на основі бази даних  [НБУ (Національного банку України)](https://bank.gov.ua/en/markets/ovdp) та щотижневого аукціону, який публікує [Міністерство фінансів України](https://mof.gov.ua/en/ogoloshennja-ta-rezultati-aukcioniv).
@@ -148,3 +164,17 @@ python src/bondstool/app.py
 
 Для завантаження логотипу компанії на веб-сторінку необхідно зберегти файл із зображенням логотипу у директорію [`BondsTool/assets`](BondsTool/assets) на вашому пристрої з назвою `logo.png`.
 
+
+ ## Розгортання на сервері (необов'язково)
+
+Аби розгорнути програму на сервері:
+
+* Для Windows
+    ```bash
+    waitress-serve --listen=*:8050 src.bondstool.app:server
+    ```
+
+* Для macOS and Linux
+    ```bash
+    gunicorn src.bondstool.app:server -b :8050
+    ```

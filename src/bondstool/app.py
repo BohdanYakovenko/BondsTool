@@ -55,6 +55,7 @@ from dash import ALL, Dash, Input, Output, State, callback, dash_table, dcc, htm
 from dash.exceptions import PreventUpdate
 
 app = Dash(__name__)
+server = app.server
 
 
 app.layout = html.Div(
@@ -478,4 +479,4 @@ def download_xlsx(n_clicks, formatted_bag_data, payment_schedule_data):
 
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(debug=False)
