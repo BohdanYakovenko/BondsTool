@@ -25,6 +25,8 @@ The Analytic BondsTool is a web service that helps manage and analyse the tradin
 
 It allows the user to interactively compare bonds and download the analytics to Excel format afterward for further analysis.
 
+![Interface-Screenshot](./assets/interface_screenshot.png)
+
 
 ## Installation
 
@@ -75,12 +77,12 @@ The run command will provide a url address by which the application will be avai
 
 By default, the program will display an analysis of a manually created example file. To process your data, use the button under the title to download your file in the correct format.
 
-Use the default file as an example of the format required. It is located in [`BondsTool/assets/example_bag.xlsx`](BondsTool/assets/example_bag.xlsx).
+Use the default file as an example of the format required. It is located in [`BondsTool/assets/example_bag.xlsx`](./assets/example_bag.xlsx).
 
 
 ## Custom Logo (Optional)
 
-To upload the company's logo to the web page, the file with the logo image should be saved into the directory [`BondsTool/assets`](BondsTool/assets) on your device with the name `logo.png`.
+To upload the company's logo to the web page, the file with the logo image should be saved into the directory [`BondsTool/assets`](./assets) on your device with the name `logo.png`.
 
 
 ## Deployment (Optional)
@@ -157,12 +159,12 @@ python src/bondstool/app.py
 
 За замовчуванням програма відобразить аналіз файлу-прикладу, створеного вручну. Для обробки ваших даних скористайтеся кнопкою під заголовком, щоб завантажити файл у відповідному форматі.
 
-Використовуйте файл за замовчуванням як приклад необхідного формату. Він знаходиться в [`BondsTool/assets/example_bag.xlsx`](BondsTool/assets/example_bag.xlsx).
+Використовуйте файл за замовчуванням як приклад необхідного формату. Він знаходиться в [`BondsTool/assets/example_bag.xlsx`](./assets/example_bag.xlsx).
 
 
 ## Додати лого (необов'язково)
 
-Для завантаження логотипу компанії на веб-сторінку необхідно зберегти файл із зображенням логотипу у директорію [`BondsTool/assets`](BondsTool/assets) на вашому пристрої з назвою `logo.png`.
+Для завантаження логотипу компанії на веб-сторінку необхідно зберегти файл із зображенням логотипу у директорію [`BondsTool/assets`](./assets) на вашому пристрої з назвою `logo.png`.
 
 
  ## Розгортання на сервері (необов'язково)
