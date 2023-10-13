@@ -55,6 +55,7 @@ from dash import ALL, Dash, Input, Output, State, callback, dash_table, dcc, htm
 from dash.exceptions import PreventUpdate
 
 app = Dash(__name__)
+server = app.server
 
 
 app.layout = html.Div(
@@ -290,6 +291,9 @@ def update_figure(
     base_fig_data, monthly_bag_data, trading_bonds_data, isin_df_data, amounts
 ):
 
+    if not amounts:
+        raise PreventUpdate
+
     dates_columns = ["month_end", "maturity_date", "pay_date"]
     index_column = ["month_end"]
 
@@ -395,7 +399,26 @@ def get_bag_table(data):
     dates_columns = ["Дата погашеня"]
     formatted_bag = read_json(data, dates_columns)
 
-    columns = [{"name": col, "id": col} for col in formatted_bag.columns]
+    cols_to_round = [
+        "Загальна сума придбання",
+        "Податок (ПнПр)",
+        "Курс валют",
+        "Сума погашення, UAH",
+        "Прибуток без податку",
+        "Прибуток після податку",
+        "Прибуток на облігацію",
+        "Прибутковість, %",
+    ]
+
+    columns = []
+    for col in formatted_bag.columns:
+        cfg = {"name": col, "id": col}
+        if col in cols_to_round:
+            cfg["type"] = "numeric"
+            cfg["format"] = {"specifier": ".2f"}
+
+        columns.append(cfg)
+
     table_data = formatted_bag.to_dict("records")
     style_data_conditional = get_style_by_condition(formatted_bag)
 
@@ -411,7 +434,19 @@ def get_schedule_table(data):
 
     payment_schedule = read_json(data)
 
-    columns = [{"name": col, "id": col} for col in payment_schedule.columns]
+    cols_to_round = [
+        "Сума, UAH",
+    ]
+
+    columns = []
+    for col in payment_schedule.columns:
+        cfg = {"name": col, "id": col}
+        if col in cols_to_round:
+            cfg["type"] = "numeric"
+            cfg["format"] = {"specifier": ".2f"}
+
+        columns.append(cfg)
+
     table_data = payment_schedule.to_dict("records")
 
     return columns, table_data
@@ -444,4 +479,4 @@ def download_xlsx(n_clicks, formatted_bag_data, payment_schedule_data):
 
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(debug=False)
